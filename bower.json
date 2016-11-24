@@ -1,0 +1,39 @@
+{
+  "name": "asq-multi-choice-q",
+  "version": "0.2.0",
+  "homepage": "https://github.com/ASQ-USI-Elements/asq-multi-choice-q",
+  "authors": [
+    "Vasileios Triglianos <triglian@gmail.com>",
+    "Zhenfei Nie <youyis2fox@gmail.com>"
+  ],
+  "description": "ASQ Multi-choice question element",
+  "keywords": [
+    "ASQ"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "polymer": "Polymer/Polymer#^1.2.1",
+    "asq-base": "ASQ-USI-Elements/asq-base#master",
+    "asq-option": "ASQ-USI-Elements/asq-option#master",
+    "iron-selector": "PolymerElements/iron-selector#^1.0.8",
+    "paper-radio-group": "PolymerElements/paper-radio-group#^1.0.6",
+    "paper-checkbox": "PolymerElements/paper-checkbox#^1.0.14",
+    "iron-list": "polymerelements/iron-list#^1.1.5",
+    "paper-styles": "PolymerElements/paper-styles#^1.0.12",
+    "paper-toggle-button": "PolymerElements/paper-toggle-button#^1.1.1",
+    "nvd3-elements": "saeidzebardast/nvd3-elements#master",
+    "iron-resizable-behavior": "PolymerElements/iron-resizable-behavior#^1.0.3"
+  },
+  "ignore": [
+    "index.js",
+    "lib",
+    "package.json",
+    "node_modules",
+    ".npmignore",
+    "test/server"
+  ],
+  "devDependencies": {
+    "iron-component-page": "PolymerElements/iron-component-page#^1.1.4",
+    "web-component-tester": "Polymer/web-component-tester#^4.2.0"
+  }
+}

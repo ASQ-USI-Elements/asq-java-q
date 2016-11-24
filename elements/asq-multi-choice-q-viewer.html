@@ -1,0 +1,480 @@
+<link rel="import" href="../../polymer/polymer.html">
+<link rel="import" href="../../asq-base/asq-base.html">
+
+<link rel="import" href="../../iron-selector/iron-multi-selectable.html">
+<link rel="import" href="../../iron-a11y-keys-behavior/iron-a11y-keys-behavior.html">
+<link rel="import" href="../../iron-list/iron-list.html">
+<link rel="import" href="../../iron-flex-layout/iron-flex-layout.html">
+
+<!--
+`asq-multi-choice-q` is used to define choice questions. It basically has two modes, single or multi, by setting the 
+`multi` attribute. Normally, `asq-multi-choice-q` is used with 
+`asq-option` together by default. However it can also be used with other elements by setting the `selectable` attribute.
+
+`asq-multi-choice-q` inherits the `Polymer.IronMultiSelectableBehavior` and adapts from `paper-radio-group`. 
+
+Examples:
+    
+    <asq-multi-choice-q selected="n" attr-for-selected="custom-name">
+      <asq-option custom-name="o">Oxygen</asq-option>
+      <asq-option custom-name="c">Carbon</asq-option>
+      <asq-option custom-name="h">Hydrogen</asq-option>
+      <asq-option custom-name="n">Nitrogen</asq-option>
+      <asq-option custom-name="ca">Calcium</asq-option>
+    </asq-multi-choice-q>
+
+    <asq-multi-choice-q selected-values='["o", "c"]' multi attr-for-selected>
+      <asq-option name="o">Oxygen</asq-option>
+      <asq-option name="c">Carbon</asq-option>
+      <asq-option name="h">Hydrogen</asq-option>
+      <asq-option name="n">Nitrogen</asq-option>
+      <asq-option name="ca">Calcium</asq-option>
+    </asq-multi-choice-q> 
+
+To pre-select some options, you may use `selected` attribtue in single mode or `selected-values` in multi mode. Note that in multi mode, the value of `selected-values` should be a **valid JSON string**. That is instead of using `"['o', 'c']"`, you need to use `'["o", "c"]'`.
+
+In single mode, you can also use arrow keys to select option.
+    
+
+@element asq-asq-multi-choice-q-viewer
+@demo demo/index.html
+@group ASQ Elements
+@blurb ASQ choice questions.
+@homepage http://github.com/ASQ-USI-Elements/asq-multi-choice-q
+-->
+<dom-module id="asq-multi-choice-q-viewer">
+  <style>
+    :host {
+      display: block;
+    }
+
+  </style>
+  <template>
+    <content select="asq-stem"></content>
+    <content id="items" select="*"></content>
+  </template>
+  <script>
+    Polymer({ 
+      is: 'asq-multi-choice-q-viewer',
+
+      behaviors: [
+        Polymer.IronMultiSelectableBehavior,
+        Polymer.IronA11yKeysBehavior,
+        ASQ.asqQuestionElementBehavior
+      ],
+
+      listeners: {
+        'iron-select' : '_onIronSelect',
+        'iron-deselect' : '_onIronDeselect',
+        'iron-items-changed' : '_onIronItemsChanged'
+      },
+
+      keyBindings: {
+        'left up': 'selectPrevious',
+        'right down': 'selectNext',
+      },
+
+
+      created: function(){
+        this.listen(this, 'role-changed', '_onRoleChanged');
+      },
+
+      // clear all selections when role has changed 
+      _onRoleChanged: function() {
+        if ( this._initialized ) {
+          this.clear();
+        }
+      },
+
+
+      attached: function() {
+        this._initialized = true;
+        Polymer.dom.flush();
+
+        // as domReady
+        // We have to do this to wait for the ready of lightdom elements.
+        // See details here: https://goo.gl/huOBKi
+        this.async(function() {
+          this._initOptions();
+          // tmp: 
+          this._updateSelected();
+          this._setOptions('disabled', this.disabled);
+        });
+
+        // TODO: temp solution before the pull request gets merged:
+        // https://github.com/PolymerElements/iron-selector/pull/64
+        this._removeListener(this.activateEvent);
+        this._addListener(this.activateEvent);  
+
+        this.fire('asq-initialized', {
+          is: this.is, 
+          which: this,
+          initialized: this._initialized
+        });
+
+      },
+
+      
+      properties: {
+        /**
+         * The selected options.
+         */
+        value: {
+          type: Object,
+          notify: true,
+          observer: '_valueChanged'
+        },
+
+        /**
+         * Disable or enable the element. Changes will be also
+         * propagated to inner propagated elements.
+         */
+        disabled: { 
+          type: Boolean,
+          value: false,
+          notify: true, 
+          observer: '_disabledChanged',
+          reflectToAttribute: true
+        },
+
+        /**
+         * Overriden from Polymer.IronMultiSelectableBehavior
+         * Modification: set the `reflectToAttribute` field.
+         *
+         * Decide the mode, single or multi.
+         */
+        multi: {
+          type: Boolean,
+          value: false,
+          reflectToAttribute: true,
+          observer: 'multiChanged'
+        },
+
+
+        /**
+         * Overriden from Polymer.IronSelectableBehavior
+         *
+         *  If you want to use the attribute value of an element for `selected` or `selected-values` instead of the index, set this to the name of the attribute.
+         * 
+         */
+        attrForSelected: {
+          type: String,
+          value: 'name'
+        },
+
+        /**
+         * Overriden from Polymer.IronSelectableBehavior
+         *
+         * The attribute to set on elements when selected.
+         */
+        selectedAttribute: {
+          type: String,
+          value: 'checked'
+        },
+
+        /**
+         * Overriden from Polymer.IronSelectableBehavior
+         *
+         * This is a CSS selector sting.  If this is set, only items that matches the CSS selector are selectable.
+         */
+        selectable: {
+          type: String,
+          value: 'asq-option'
+        },
+
+        /**
+         * Overriden from Polymer.IronSelectableBehavior
+         * 
+         * The class to set on elements when selected.
+         *
+         * @attribute selectedClass
+         * @type {string}
+         */
+        selectedClass: {
+          type: String,
+          value: 'asq-selected'
+        },
+
+        _answers: {
+          type: Array,
+          notify: true
+        },
+
+        _initialized: {
+          type: Boolean,
+          value: false,
+          notify: true
+        },
+
+        selectedValues: {
+          type: Array,
+          notify: true,
+          value: function() {
+            return []
+          }
+        },
+
+        eventBus: {
+          type: Object,
+          observer: "_eventBusChanged",
+          notify: true
+        },
+
+      },
+
+      _valueChanged : function(newVal, oldVal){
+        for ( var i in newVal ) {
+          for ( var j in this.items ) {
+            var name = this.items[j].getAttribute(this.attrForSelected);
+            var uid = this.items[j].uid;
+            if ( name === '' ) name = i; 
+            // maybe it's a security problem matching on the name?
+            // should we only match in the uid?
+            if(( newVal[i].uid.trim()!= "" && newVal[i].uid === uid )
+                ||  newVal[i].name.trim()!= "" && newVal[i].name === name){
+              if(this.items[j].hasAttribute(this.selectedAttribute) != newVal[i].value){
+                this.select(name);
+              }
+            }
+          } 
+        }
+      },
+
+      _onIronSelect: function(){
+        this.value = this._getValue();
+      },
+
+      _onIronDeselect: function(){
+        this.value = this._getValue();
+      },
+
+      _onIronItemsChanged: function(){
+        this.value = this._getValue();
+      },
+
+      _getValue: function(){
+        var options = [];
+
+        for ( var i in this.items ) {
+          var name = this.items[i].getAttribute(this.attrForSelected);
+          if ( name === '' ) name = i; 
+          options.push({
+            uid: this.items[i].uid,
+            name: name,
+            value: this.items[i].hasAttribute(this.selectedAttribute)
+          });
+        }
+
+        return options;
+      },
+
+      _initOptions: function() {
+        this._setOptions('multi', this.multi);
+      },
+
+      _setOptions: function(attr, value) {
+        for ( var i in this.items ) {
+          if ( typeof this.items[i][attr] !== 'undefined' ) {
+            this.items[i][attr] = value;
+          }
+        }
+      },
+
+      /**
+       * Overriden from Polymer.IronMultiSelectableBehavior
+       *
+       * Modifications: 1) clear all selections first; 
+       * 2) propagate changes to all options.
+       *
+       * 
+       */
+      multiChanged: function(multi) {
+        if ( this._initialized ) {
+          this.clear();
+        }
+        this._selection.multi = multi;
+        this._setOptions('multi', this.multi);
+      },
+
+      _disabledChanged: function(disabled) {
+        this._setOptions('disabled', this.disabled)
+      },
+
+
+      /**
+       * Toggle the given value. By setting the `flag` you can make
+       * sure the give value is to be checked or not. If the `flag` is
+       * not specified, it behaves the same as `select` method.
+       */
+      toggle: function(value, flag) {
+        if (typeof flag === 'undefined') {
+          this.select(value);
+          return
+        }
+        
+        if ( typeof flag === 'boolean' && flag !== this.hasSelected(value) ) {
+          this.select(value);
+        }
+      },
+
+      /**
+       * Toggle the given value. 
+       * 
+       * Note, it will always set the item specified by `value` into 
+       * opposite state. That is either from `checked` to not checked or
+       * from not checked to `checked`.
+       * 
+       */
+      select: function(value) {
+        if ( this.disabled ) return;
+        Polymer.IronMultiSelectableBehaviorImpl.select.apply(this, [value]);
+        this.fire('asq-multi-choice-q-changed');
+      },
+
+      /**
+       * Clear all selections.
+       */
+      clear: function() {
+        this.selected = '';
+        this.selectedValues = [];
+      },
+
+      /**
+       * Check if the given value has been selected.
+       */
+      hasSelected: function(value) {
+        if ( ! this.multi ) 
+          return this.selected === value 
+        else
+          if ( ! this.selectedValues ) this.selectedValues = [];
+          return this.selectedValues.indexOf(value) >=0 
+      },
+
+
+      /**
+       * From PolymerElements/paper-radio-group.
+       * **Only** useful when `multi` is false.
+       * 
+       * Selects the previous item. If the previous item is disabled, then it is
+       * skipped, and its previous item is selected
+       */
+      selectPrevious: function() {
+        if ( this.multi ) return;
+        var length = this.items.length;
+        var newIndex = Number(this._valueToIndex(this.selected));
+
+        do {
+          newIndex = (newIndex - 1 + length) % length;
+        } while (this.items[newIndex].disabled)
+
+        this.select(this._indexToValue(newIndex));
+      },
+
+      /**
+       * From PolymerElements/paper-radio-group.
+       * **Only** useful when `multi` is false.
+       * 
+       * Selects the next item. If the next item is disabled, then it is
+       * skipped, and the next item after it is selected.
+       */
+      selectNext: function() {
+        if ( this.multi ) return;
+        var length = this.items.length;
+        var newIndex = Number(this._valueToIndex(this.selected));
+
+        do {
+          newIndex = (newIndex + 1 + length) % length;
+        } while (this.items[newIndex].disabled)
+
+        this.select(this._indexToValue(newIndex));
+      },
+
+      _computeClass: function (selected) {
+        var classList = 'row list-item';
+        if (selected) classList += ' selected';
+        return classList;
+      },
+
+      /**
+       * Collect answers from inner `asq-option`s and orgnize them 
+       * into an object.
+       *
+
+          {
+            uid: this.uid,
+            timestamp: new Date(),
+            options: options
+          }
+
+       */
+      submit: function() {
+        if ( this.role !== this.roles.VIEWER ) return;
+
+        var options = [];
+
+        for ( var i in this.items ) {
+          var name = this.items[i].getAttribute(this.attrForSelected);
+          if ( name === '' ) name = i; 
+          options.push({
+            uid: this.items[i].uid,
+            name: name,
+            value: this.items[i].hasAttribute(this.selectedAttribute)
+          });
+        }
+
+        return {
+          questionUid: this.uid,
+          timestamp: new Date(),
+          options: options
+        }
+      },
+
+      _eventBusChanged: function (eventBus) {
+        if(!eventBus) return;
+        eventBus.on('asq:question_type', this._onQuestionType.bind(this));
+      },
+
+      _onQuestionType: function(evt){
+        if (!evt || ! evt.questionType) return;
+        if ( this.items.length === 0 ) return;
+        if ( evt.questionType == 'asq-multi-choice-q' ) {
+          if(evt.type == 'restoreViewer'){
+            this._onRestoreViewer(evt);
+          }
+        }
+      },
+
+      // zhenfei: may use ECMA 6 Array.prototype.find instead ?
+      _findOptionById: function(uid) {
+        for ( var i in this.items ) {
+          if ( this.items[i].uid == uid ) {
+            return this.items[i]
+          }
+        }
+      },
+
+      
+      _onRestoreViewer: function(evt){
+        if ( !evt.questions ) return;
+        
+        evt.questions.forEach(function(q){
+        if( q.uid != this.uid ) return;
+          q.options.forEach(function(option){
+           this._updateOption(option.uid, option.value);
+          }.bind(this));
+        }.bind(this));
+      },
+
+      // value is boolean, meaning checked or not.
+      _updateOption: function(uid, value){
+        var option = this._findOptionById(uid);
+        if(! option){
+          console.error('Failed to updateOption; could not find option with uid %s', uid);
+          return;
+        }
+        this.toggle(option.getAttribute(this.attrForSelected), value);
+      }
+      
+    });
+  </script>
+</dom-module>

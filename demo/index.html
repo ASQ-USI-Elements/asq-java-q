@@ -1,0 +1,145 @@
+<!doctype html>
+<html>
+<head>
+  <meta name="asq-elements" content="width=device-width, initial-scale=1, user-scalable=no">
+
+  <title>asq-multi-choice-q | Demo</title>
+
+  <script src="../../webcomponentsjs/webcomponents.js"></script>
+
+  <link rel="import" href="../asq-multi-choice-q.html" >
+  <link rel="import" href="../../asq-option/asq-option.html" >
+
+  
+  <style is="custom-style">
+    body{
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    }
+
+    asq-option {
+      display: block;
+    }
+
+    .asq-selected {
+      background-color: #CFD8DC;
+    }
+
+
+    asq-multi-choice-q > asq-option {
+      --asq-option-viewer-unchecked-ink-color: #FF1744;
+      --asq-option-viewer-checked-ink-color: #2E7D32;
+      --asq-option-viewer-checked-color: red;
+      --asq-option-viewer-unchecked-background-color: #D7CCC8;
+    }
+
+    
+
+    asq-multi-choice-q[multi] > asq-option {
+      --asq-option-viewer-unchecked-ink-color: #FF1744;
+      --asq-option-viewer-checked-ink-color: #2E7D32;
+      --asq-option-viewer-checked-color: black;
+      --asq-option-viewer-unchecked-background-color: white;
+    }
+
+    asq-multi-choice-q[multi] > asq-option[name="n"] {
+      --asq-option-viewer-unchecked-ink-color: #FF1744;
+      --asq-option-viewer-checked-ink-color: blue;
+      --asq-option-viewer-checked-color: #6200EA;
+      --asq-option-viewer-unchecked-background-color: #FFB74D;
+    }
+
+    asq-option.blue {
+      --asq-option-presenter-progress-active-color: var(--paper-light-blue-500);
+    }
+
+    asq-option.red {
+      --asq-option-presenter-progress-active-color: var(--paper-red-500);
+    }
+
+  </style>
+
+
+</head>
+
+<body>
+
+    <h4>A multi mode <code>asq-multi-choice-q</code> question for viewer.</h4>
+    <asq-multi-choice-q selected-values='["h", "ca"]' multi>
+      <asq-option name="o">Oxygen</asq-option>
+      <asq-option name="c">Carbon</asq-option>
+      <asq-option name="h">Hydrogen</asq-option>
+      <asq-option name="n">Nitrogen</asq-option>
+      <asq-option name="ca">Calcium</asq-option>
+    </asq-multi-choice-q>
+
+    <hr>
+
+    <h4>A single mode <code>asq-multi-choice-q</code> question for viewer.</h4>
+    <asq-multi-choice-q selected="n" attr-for-selected="custom-name">
+      <asq-option custom-name="o">Oxygen</asq-option>
+      <asq-option custom-name="c">Carbon</asq-option>
+      <asq-option custom-name="h">Hydrogen</asq-option>
+      <asq-option custom-name="n">Nitrogen</asq-option>
+      <asq-option custom-name="ca">Calcium</asq-option>
+    </asq-multi-choice-q>
+
+    <hr>
+
+    <h4>A single mode <code>asq-multi-choice-q</code> question for presenter.</h4>
+    <asq-multi-choice-q attr-for-selected="name" role="presenter">
+      <asq-option role="presenter" name="o" progress-value="12" progress-max="15">Oxygen</asq-option>
+      <asq-option role="presenter" name="c"  class="red"  progress-value="4" progress-max="15">Carbon</asq-option>
+      <asq-option role="presenter" name="h" progress-value="7" progress-max="15">Hydrogen</asq-option>
+      <asq-option role="presenter" name="n"  class="red"  progress-value="2" progress-max="15">Nitrogen</asq-option>
+      <asq-option role="presenter" name="ca" class="blue" progress-value="10" progress-max="15">Calcium</asq-option>
+    </asq-multi-choice-q>
+
+    <h4>A single mode <code>asq-multi-choice-q</code> question for presenter with vertical bar-chart.</h4>
+    <asq-multi-choice-q id="vStats" attr-for-selected="name" role="presenter" stats-layout="vertical">
+      <asq-option role="presenter" name="o" uid="o">Oxygen is absolutely necessary for life</asq-option>
+      <asq-option role="presenter" name="c" uid="c">Carbon</asq-option>
+      <asq-option role="presenter" name="h" uid="h">Hydrogen</asq-option>
+      <asq-option role="presenter" name="n" uid="n">Nitrogen</asq-option>
+      <asq-option role="presenter" name="ca" uid="ca">Calcium and something else make salt</asq-option>
+    </asq-multi-choice-q>
+
+    
+
+  <script>
+    var x = document.querySelector('asq-multi-choice-q');
+    var y = document.querySelectorAll('asq-multi-choice-q')[1];
+    window.onmessage = function(e){
+      if (typeof e.data.role == "string" && e.data.role.length > 0) {
+        var allAsqElements = document.querySelectorAll('html /deep/ *');
+        allAsqElements = Array.prototype.slice.call(allAsqElements).filter(function(el) {
+          return isASQEl(el);
+        });
+
+        //set role for every asq-element in this page
+        allAsqElements.forEach(function(elem, index) {
+          elem.role = e.data.role;
+        });
+      }
+
+      function isASQEl(el) {
+        return el.localName.indexOf('asq-') != -1;
+      } 
+    };
+
+    document.addEventListener("WebComponentsReady", function(evt){
+      var asqmc = document.getElementById("vStats");
+      asqmcP = Polymer.dom(asqmc.root).querySelector('asq-multi-choice-q-presenter');
+      var progress = {
+        o : 1,
+        c : 15,
+        h : 15,
+        n : 15,
+        ca : 70
+      }
+      asqmcP._updateProgress(progress , 100)
+    })
+  </script>
+
+
+</body>
+</html>

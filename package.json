@@ -1,0 +1,34 @@
+{
+  "name": "asq-multi-choice-q",
+  "version": "0.2.0",
+  "description": "Multi-choice question type for ASQ.",
+  "author": "Zhenfei Nie <zhen.fei.nie@usi.ch>, Vassilis Triglianos <triglian@gmail.com>",
+  "homepage": "https://github.com/ASQ-USI-Elements/asq-multi-choice-q",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:ASQ-USI-Elements/asq-multi-choice-q.git"
+  },
+  "keywords": [
+    "node.js"
+  ],
+  "bugs": {
+    "url": "https://github.com/ASQ-USI-Elements/asq-multi-choice-q/issues"
+  },
+  "dependencies": {
+    "asq-plugin": "ASQ-USI/asq-plugin",
+    "bluebird": "^2.8.2",
+    "cheerio": "^0.18.0",
+    "lodash": "^3.7.0",
+    "bson-objectid": "^1.1.1"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "chai": "^1.10.0",
+    "mocha": "^2.1.0",
+    "sinon": "^1.12.2"
+  },
+  "asq": {
+    "type": "question"
+  }
+}

@@ -1,0 +1,664 @@
+<link rel="import" href="../../polymer/polymer.html">
+<link rel="import" href="../../paper-toggle-button/paper-toggle-button.html">
+<link rel="import" href="../../asq-base/asq-base.html">
+
+<link rel="import" href="../../iron-selector/iron-multi-selectable.html">
+<link rel="import" href="../../iron-list/iron-list.html">
+<link rel="import" href="../../iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../iron-resizable-behavior/iron-resizable-behavior.html">
+
+<link rel="import" href="../../nvd3-elements/nvd3-discrete-bar.html">
+
+
+<!--
+`asq-multi-choice-q` is used to define choice questions. It basically has two modes, single or multi, by setting the 
+`multi` attribute. Normally, `asq-multi-choice-q` is used with 
+`asq-option` together by default. However it can also be used with other elements by setting the `selectable` attribute.
+
+`asq-multi-choice-q` inherits the `Polymer.IronMultiSelectableBehavior` and adapts from `paper-radio-group`. 
+
+Examples:
+    
+    <asq-multi-choice-q selected="n" attr-for-selected="custom-name">
+      <asq-option custom-name="o">Oxygen</asq-option>
+      <asq-option custom-name="c">Carbon</asq-option>
+      <asq-option custom-name="h">Hydrogen</asq-option>
+      <asq-option custom-name="n">Nitrogen</asq-option>
+      <asq-option custom-name="ca">Calcium</asq-option>
+    </asq-multi-choice-q>
+
+    <asq-multi-choice-q selected-values='["o", "c"]' multi attr-for-selected>
+      <asq-option name="o">Oxygen</asq-option>
+      <asq-option name="c">Carbon</asq-option>
+      <asq-option name="h">Hydrogen</asq-option>
+      <asq-option name="n">Nitrogen</asq-option>
+      <asq-option name="ca">Calcium</asq-option>
+    </asq-multi-choice-q> 
+
+To pre-select some options, you may use `selected` attribtue in single mode or `selected-values` in multi mode. Note that in multi mode, the value of `selected-values` should be a **valid JSON string**. That is instead of using `"['o', 'c']"`, you need to use `'["o", "c"]'`.
+
+In single mode, you can also use arrow keys to select option.
+    
+
+@element asq-multi-choice-q-presenter
+@demo demo/index.html
+@group ASQ Elements
+@blurb ASQ choice questions.
+@homepage http://github.com/ASQ-USI-Elements/asq-multi-choice-q
+-->
+<dom-module id="asq-multi-choice-q-presenter">
+  <style>
+    :host {
+      display: block;
+    }
+    
+    /* Somehow the paper ripple inside the paper-toggle-button
+    has an absolute positioning, and then takes over the whole page up
+    to the nearest relative parent unless we set the toggle position to `relative` 
+    */
+    #statsToggle{
+      position:relative;
+      @apply(--asq-multi-choice-stats-toggle);
+    }
+  </style>
+  <template>
+    <content select="asq-stem"></content>
+    <paper-toggle-button id="statsToggle" checked="{{_shouldShowStats}}"></paper-toggle-button>
+    <content id="optionsContent" select="asq-option"></content>
+    <content ></content>
+    <nvd3-discrete-bar 
+      id="vbarchart"
+      hidden$="[[_hideVerticalStats(statsLayout, _shouldShowStats)]]"
+      height="{{vstatsHeight}}"
+      width="{{vstatsWidth}}"
+      data={{_vBarData}}
+      auto-resize>
+    </nvd3-discrete-bar>
+  </template>
+  <script>
+  function getBaseLog(x, y) {
+  return Math.log(y) / Math.log(x);
+}
+
+    function tWrap(text, width) {
+      text.each(function() {
+        var text = d3.select(this),
+            words = text.text().trim().split(/\s+/).reverse(),
+            word,
+            line = [],
+            lineNumber = 0,
+            lineHeight = 1.1, // ems
+            y = text.attr("y")  || 0,
+            dy = parseFloat(text.attr("dy")) || 0,
+            tspan = text.text(null).append("tspan")
+              .attr("x", 0)
+              .attr("y", y)
+              .attr("dy", dy + "em");
+        while (word = words.pop()) {
+          line.push(word);
+          tspan.text(line.join(" "));
+          if (tspan.node().getComputedTextLength() > width) {
+            line.pop();
+            tspan.text(line.join(" "));
+            line = [word];
+            tspan = text.append("tspan").attr("x", 0).attr("y", y).attr("dy", ++lineNumber * lineHeight + dy + "em").text(word);
+          }
+          // align center
+          var w = tspan.node().getComputedTextLength();
+          var tspanX = (parseFloat(width) / 2) - (w / 2);
+          tspan.attr("x", tspanX)
+        }
+      });
+    }
+
+    Polymer({ 
+      is: 'asq-multi-choice-q-presenter',
+
+      behaviors: [
+        Polymer.IronMultiSelectableBehavior,
+        Polymer.IronA11yKeysBehavior,
+        Polymer.IronResizableBehavior,
+        ASQ.asqQuestionElementBehavior
+      ],
+
+      properties: {
+        /**
+         * The selected options. Doesn't do anything in presenter right now.
+         */
+        value: {
+          type: Object,
+        },
+
+        /**
+         * Disable or enable the element. Changes will be also
+         * propagated to inner propagated elements.
+         */
+        disabled: { 
+          type: Boolean,
+          value: false,
+          notify: true, 
+          observer: '_disabledChanged',
+          reflectToAttribute: true
+        },
+        /**
+         * Overriden from Polymer.IronMultiSelectableBehavior
+         * Modification: set the `reflectToAttribute` field.
+         *
+         * Decide the mode, single or multi.
+         */
+        multi: {
+          type: Boolean,
+          value: false,
+          reflectToAttribute: true,
+          observer: 'multiChanged'
+        },
+
+
+        /**
+         * Overriden from Polymer.IronSelectableBehavior
+         *
+         *  If you want to use the attribute value of an element for `selected` or `selected-values` instead of the index, set this to the name of the attribute.
+         * 
+         */
+        attrForSelected: {
+          type: String,
+          value: 'name'
+        },
+
+        /**
+         * Overriden from Polymer.IronSelectableBehavior
+         *
+         * The attribute to set on elements when selected.
+         */
+        selectedAttribute: {
+          type: String,
+          value: 'checked'
+        },
+
+        /**
+         * Overriden from Polymer.IronSelectableBehavior
+         *
+         * This is a CSS selector sting.  If this is set, only items that matches the CSS selector are selectable.
+         */
+        selectable: {
+          type: String,
+          value: 'asq-option'
+        },
+
+        /**
+         * Overriden from Polymer.IronSelectableBehavior
+         * 
+         * The class to set on elements when selected.
+         *
+         * @attribute selectedClass
+         * @type {string}
+         */
+        selectedClass: {
+          type: String,
+          value: 'asq-selected',
+        },
+
+        _answers: {
+          type: Array,
+          notify: true,
+        },
+
+        _initialized: {
+          type: Boolean,
+          value: false,
+          notify: true,
+        },
+
+        _shouldShowStats:{
+          type: Boolean,
+          value: false,
+          notify: true,
+          observer: "_shouldShowStatsChanged"
+        },
+
+        selectedValues: {
+          type: Array,
+          notify: true,
+          value: function() {
+            return []
+          },
+        },
+
+        _vBarData: {
+          type: Array,
+          value: function(){
+            return [];
+          },
+          notify: true,
+          observer: "_vBarDataChanged"
+        },
+
+        /**
+        * display `horizontal` or `vertical` bar chart on the presenter.
+        */
+        statsLayout:{
+          type: String,
+          value: "horizontal",
+          notify: true,
+          observer: "_statsLayoutChanged",
+          reflectToAttribute:true
+        },
+
+        /**
+        * The height of the nv3d bar chart in pixels. Only used when `statsLayout="vertical"`
+        * Default: The height of the container element.
+        */
+        vstatsHeight:{
+          type: Number,
+          value: 400
+        },
+
+        /**
+        * The width of the nv3d bar chart in pixels. Only used when `statsLayout="vertical"`
+        * Default: The width of the container element.
+        */
+        vstatsWidth:{
+          type: Number
+        },
+
+        /**
+        * The base font-size for the labels. Important: this doesn't match the final size
+        * which is calculated by taking into account the base font-size and the width of
+        * the bars
+        */
+        vstatsLabelFontSize:{
+          type: String,
+          value: "inherit"
+        },
+
+        eventBus: {
+          type: Object,
+          observer: "_eventBusChanged",
+          notify: true,
+        },
+
+      },
+
+      listeners: {
+        'iron-resize': '_onResize'
+      },
+
+
+      created: function() {
+        this.listen(this, 'role-changed', '_onRoleChanged');
+      },
+
+      _onResize: function(){
+        if(this.statsLayout !== "vertical" || this._shouldShowStats === false ) return;
+        this._refreshVBarChart();
+      },
+
+      // clear all selections when role has changed 
+      _onRoleChanged: function() {
+        if ( this._initialized ) {
+          this.clear();
+        }
+      },
+
+
+      attached: function() {
+        this._initialized = true;
+        Polymer.dom.flush();
+
+        this.$.vbarchart.style.fontSize = this.vstatsLabelFontSize;
+
+        // fixme(triglian): somehow the svg doesn't stress when inside an impress.js presentation
+        // in the demo.html it stretches normally
+        this.$.vbarchart.svg.style.width = "100%";
+        this.$.vbarchart.svg.style.height = "100%";
+
+        // patch _chart property which is reused on every drawing
+        // to hide x axis
+        this.$.vbarchart._chart = this.$.vbarchart._chart.showXAxis(false);
+        // only show integer y axis numbers
+        this.$.vbarchart._chart.yAxis.tickFormat(d3.format(',.0d'));
+
+        // as domReady
+        // We have to do this to wait for the ready of lightdom elements.
+        // See details here: https://goo.gl/huOBKi
+        this.async(function() {
+          this._initOptions();
+          this._setOptions('disabled', this.disabled);
+          this._showStats(this.$.statsToggle.checked);
+        });
+
+        this.fire('asq-initialized', {
+          is: this.is, 
+          which: this,
+          initialized: this._initialized
+        });
+
+        // TODO: temp solution before the pull request gets merged:
+        // https://github.com/PolymerElements/iron-selector/pull/64
+        this._removeListener(this.activateEvent);
+        this._addListener(this.activateEvent);  
+      },
+
+      _shouldShowStatsChanged: function(newVal, oldVal){
+        this._showStats(newVal);
+        this._markCorrectOptions(newVal);
+      },
+
+      _showStats: function(show){
+        if(this.statsLayout !== "vertical"){
+          return this._showOptionsProgress(show);
+        }else{
+          this._setOptions('hidden', show);
+          show && this._refreshVBarChart()
+        }
+      },
+
+      _refreshVBarChart: function(){
+        this.$.vbarchart.generateChart();
+        this._drawLabelsInVBarChart();
+      },
+
+      _vBarDataChanged: function(){
+        if(this.statsLayout !== "vertical" || this._shouldShowStats === false ) return;
+        this._refreshVBarChart();
+      },
+
+      _drawLabelsInVBarChart: function(){
+        this.async(function(){
+          d3.select(this.$.vbarchart.svg).selectAll('.nv-discretebar .nv-group').each(function(group){
+            var g = d3.select(this);
+            
+            // Remove previous labels if there is any
+            g.selectAll('text').remove();
+            g.selectAll('.nv-bar').each(function(bar){
+              var b = d3.select(this)
+              var db = d3.select(this).select(".discreteBar");
+              var barWidth = db.attr('width');
+              var barHeight = db.attr('height');
+
+              b.append('text')
+                // Transforms shift the origin point then the x and y of the bar
+                // is altered by this transform. In order to align the labels
+                // we need to apply this transform to those.
+                // .attr('transform', b.attr('transform'))
+                .text(function(){
+                  // Two decimals format
+                  return bar.label
+                })
+                .style('fill', 'rgba(0, 0, 0, 1)')
+                .style('stroke', 'rgba(0, 0, 0, 0)')
+                .style('font-size', (0.40* getBaseLog(5, barWidth - 50)) + "em")
+                .call(tWrap, barWidth)
+                .attr('dy', 0)
+                // .attr('y', 0)
+                .attr('x', 0)
+                .attr('y', function(){
+                  // Center label vertically
+                  var height = this.getBBox().height + 10;
+                  if(barHeight < height){
+                    return - (height - 10)
+                  }
+                  return 30; // 10 is the label's margin from the bar
+                })
+                .attr('class', 'bar-labels')
+                .selectAll('tspan').each(function(tspan){
+                  d3.select(this).attr("y", d3.select(this.parentNode).attr("y"))
+                })
+
+                // .attr('x', function(){
+                //   // Center label horizontally
+                //   var width = this.getBBox().width;
+                //   return (parseFloat(barWidth) / 2) - (width / 2);
+                // })
+                
+            });
+          });
+        },300);
+      },
+
+      _showOptionsProgress: function(val){
+
+        // We have to do this to wait for the ready of lightdom elements.
+        // See details here: https://goo.gl/huOBKi
+        this.async(function() {
+          this.items.forEach(function(op){
+            op.displayProgress = val;
+          })
+        });
+      },
+
+      _markCorrectOptions: function(shouldMark){
+        this.items.forEach(function(op){
+          if(op.correct){
+            op.style.background = (shouldMark ? "#66BB6A" : "none");
+          }
+        })
+      },
+
+      _initOptions: function() {
+        this._setOptions('multi', this.multi);
+        // FIXME: three ways around to set role of asq-option
+        // 1. listen to `asq-option-ready` at asq-multi-choice;
+        // 2. overwrite the _propagateRole in asq-base by using
+        // Polymer.dom(this).queryDistributedElements.
+        // 3. use method below
+        // this._setOptions('role', this.role);
+      },
+
+      _setOptions: function(attr, value) {
+        for ( var i in this.items ) {
+          if ( typeof this.items[i][attr] !== 'undefined' ) {
+            this.items[i][attr] = value;
+          }
+        }
+      },
+
+      /**
+       * Overriden from Polymer.IronMultiSelectableBehavior
+       *
+       * Modifications: 1) clear all selections first; 
+       * 2) propagate changes to all options.
+       *
+       * 
+       */
+      multiChanged: function(multi) {
+        if ( this._initialized ) {
+          this.clear();
+        }
+        this._selection.multi = multi;
+        this._setOptions('multi', this.multi);
+      },
+
+      _disabledChanged: function(disabled) {
+        this._setOptions('disabled', this.disabled);
+      },
+
+      /**
+       * Toggle the given value. By setting the `flag` you can make
+       * sure the give value is to be checked or not. If the `flag` is
+       * not specified, it behaves the same as `select` method.
+       */
+      toggle: function(value, flag) {
+        if (typeof flag === 'undefined') {
+          this.select(value);
+          return
+        }
+        
+        if ( typeof flag === 'boolean' && flag !== this.hasSelected(value) ) {
+          this.select(value);
+        }
+      },
+
+      /**
+       * Toggle the given value. 
+       * 
+       * Note, it will always set the item specified by `value` into 
+       * opposite state. That is either from `checked` to not checked or
+       * from not checked to `checked`.
+       * 
+       */
+      select: function(value) {
+        if ( this.disabled ) return;
+        Polymer.IronMultiSelectableBehaviorImpl.select.apply(this, [value]);
+        this.fire('asq-multi-choice-q-changed');
+      },
+
+      /**
+       * Clear all selections.
+       */
+      clear: function() {
+        this.selected = '';
+        this.selectedValues = [];
+      },
+
+      /**
+       * Check if the given value has been selected.
+       */
+      hasSelected: function(value) {
+        if ( ! this.multi ) 
+          return this.selected === value 
+        else
+          return this.selectedValues.indexOf(value) >=0 
+      },
+
+
+
+      _eventBusChanged: function (eventBus) {
+        if(!eventBus) return;
+        eventBus.on('asq:question_type', this._onQuestionType.bind(this));
+      },
+
+      _statsLayoutChanged: function(newL, oldL){
+        if(newL == oldL) return;
+
+        return this._showStats(this._shouldShowStats);
+      },
+
+
+      _onQuestionType: function(evt){
+        if (!evt || ! evt.questionType) return;
+        // FIXME
+        // A strange problem: it will get an event twice
+        // with different `this`!! 
+        if ( this.items.length === 0 ) return;
+        
+        if ( evt.questionType == 'asq-multi-choice-q' ) {
+          if ( evt.type == 'progress' ){
+            this._onProgress(evt);
+          } 
+          else if(evt.type == 'restorePresenter'){
+            this._onRestorePresenter(evt);
+          }
+        }
+      },
+
+      _onProgress: function(evt){
+        if ( evt.question.question !== this.uid ) return;
+
+        if ( this.role !== this.roles.PRESENTER ) return;
+
+        var optionsDictionary = {};
+        evt.question.options.forEach(function(option){
+          optionsDictionary[option.uid] = option.sum;
+        }.bind(this));
+
+        this._updateProgress(optionsDictionary, evt.total)
+      },
+
+      _onRestorePresenter: function(evt){
+        if ( !evt.questions ) return;
+        
+        evt.questions.forEach(function(q){
+          if( q.uid != this.uid ) return;
+
+          var optionsDictionary = {};
+          q.data.options.forEach(function(option){
+            optionsDictionary[option.uid] = option.sum;
+            this._setOptionCorrectness(option);
+          }.bind(this));
+
+          this._updateProgress(optionsDictionary, evt.total)
+        }.bind(this));
+      },
+
+      _updateProgress: function(options, total){
+        total = total || 100;
+        //simultaneously update nv3d and asq-options
+
+        // we will use the local ordering of options but first we need to check
+        // that they match the database 
+        var domOpts =  this.items.map(function(el){ return el.uid});
+        if(domOpts.slice().sort().join(',')!== Object.keys(options).sort().join(',')){
+          throw Error("remote options don't match local options")
+        }
+
+        var data = domOpts.map(function(key){
+          var opt = this._updateOptionProgress(key, options[key], total);
+          var pOpt = Polymer.dom(opt.root).querySelector("asq-option-presenter");
+          var txt = opt.textContent//pOpt.$.label.textContent;
+          return {
+            label: txt,
+            value: options[key] || 0
+          }
+        }.bind(this))
+
+        this._vBarData = [{
+          key: "test",
+          values: data
+        }]
+
+        
+        // for (var key in options){
+        //   if(options.hasOwnProperty(key)){
+        //     this._updateOptionProgress(key, options[key], total);
+        //   }
+        // }
+      },
+
+      // zhenfei: may use ECMA 6 Array.prototype.find instead ?
+      _findOptionById: function(uid) {
+        for ( var i in this.items ) {
+          if ( this.items[i].uid == uid ) {
+            return this.items[i]
+          }
+        }
+      },
+
+      _updateOptionProgress: function(uid, value, total){
+        var option = this._findOptionById(uid);
+        if(! option){
+          console.error('Failed to updateOptionProgress; could not find option with uid %s', uid);
+          return;
+        }
+        option.progressValue = value;
+        option.progressMax = total;
+        return option;
+      },
+
+      _setOptionCorrectness: function(optionData){
+        var option = this._findOptionById(optionData.uid);
+        if(! option){
+          console.error('Failed to _setOptionCorrectness; could not find option with uid %s', optionData.uid);
+          return;
+        }
+        option.correct = optionData.correct;
+      },
+
+
+      // value is boolean, meaning checked or not.
+      _updateOption: function(uid, value){
+        var option = this._findOptionById(uid);
+        if(! option){
+          console.error('Failed to updateOption; could not find option with uid %s', uid);
+          return;
+        }
+        this.toggle(option.getAttribute(this.attrForSelected), value);
+      },
+
+      _hideVerticalStats: function(statsLayout, showStats){
+        return statsLayout === "horizontal" || showStats === false;
+      }
+      
+    });
+  </script>
+</dom-module>

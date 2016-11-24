@@ -1,19 +1,24 @@
 {
-  "name": "asq-multi-choice-q",
+  "name": "asq-java-q",
   "version": "0.2.0",
-  "description": "Multi-choice question type for ASQ.",
-  "author": "Zhenfei Nie <zhen.fei.nie@usi.ch>, Vassilis Triglianos <triglian@gmail.com>",
-  "homepage": "https://github.com/ASQ-USI-Elements/asq-multi-choice-q",
+  "description": "Java question type for ASQ.",
+  "author":  "Vasileios Triglianos <triglian@gmail.com>,
+              Grigory Rebinskiy <grigory.rebinskiy@usi.ch>,
+              Kyriakos Stylianopoulos <kyriakos.stylianopoulos@usi.ch>,
+              Alexander Fischer <alexander.fischer@usi.ch>,
+              Patrick Balestra <patrick.balestra@usi.ch>,
+              Marco Tollini <marco.tollini@usi.ch>",
+  "homepage": "https://github.com/ASQ-USI-Elements/asq-java-q",
   "main": "index.js",
   "repository": {
     "type": "git",
-    "url": "git@github.com:ASQ-USI-Elements/asq-multi-choice-q.git"
+    "url": "git@github.com:ASQ-USI-Elements/asq-java-q.git"
   },
   "keywords": [
     "node.js"
   ],
   "bugs": {
-    "url": "https://github.com/ASQ-USI-Elements/asq-multi-choice-q/issues"
+    "url": "https://github.com/ASQ-USI-Elements/asq-java-q/issues"
   },
   "dependencies": {
     "asq-plugin": "ASQ-USI/asq-plugin",

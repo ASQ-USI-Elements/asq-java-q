@@ -1,12 +1,16 @@
 {
-  "name": "asq-multi-choice-q",
-  "version": "0.2.0",
-  "homepage": "https://github.com/ASQ-USI-Elements/asq-multi-choice-q",
+  "name": "asq-java-q",
+  "version": "0.1.0",
+  "homepage": "https://github.com/ASQ-USI-Elements/asq-java-q",
   "authors": [
     "Vasileios Triglianos <triglian@gmail.com>",
-    "Zhenfei Nie <youyis2fox@gmail.com>"
+    "Grigory Rebinskiy <grigory.rebinskiy@usi.ch>",
+    "Kyriakos Stylianopoulos <kyriakos.stylianopoulos@usi.ch>",
+    "Alexander Fischer <alexander.fischer@usi.ch>",
+    "Patrick Balestra <patrick.balestra@usi.ch>",
+    "Marco Tollini <marco.tollini@usi.ch>",
   ],
-  "description": "ASQ Multi-choice question element",
+  "description": "ASQ Java question element",
   "keywords": [
     "ASQ"
   ],

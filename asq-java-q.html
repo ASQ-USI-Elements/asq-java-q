@@ -1,18 +1,18 @@
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../asq-base/asq-base.html">
 
-<link rel="import" href="elements/asq-multi-choice-q-viewer.html">
-<link rel="import" href="elements/asq-multi-choice-q-presenter.html">
+<link rel="import" href="elements/asq-java-q-viewer.html">
+<link rel="import" href="elements/asq-java-q-presenter.html">
 
 <!--
-`asq-multi-choice-q` is used to define choice questions. It basically has two modes, single or multi, by setting the 
-`multi` attribute. Normally, `asq-multi-choice-q` is used with 
+`asq-multi-choice-q` is used to define choice questions. It basically has two modes, single or multi, by setting the
+`multi` attribute. Normally, `asq-multi-choice-q` is used with
 `asq-option` together by default. However it can also be used with other elements by setting the `selectable` attribute.
 
-`asq-multi-choice-q` inherits the `Polymer.IronMultiSelectableBehavior` and adapts from `paper-radio-group`. 
+`asq-multi-choice-q` inherits the `Polymer.IronMultiSelectableBehavior` and adapts from `paper-radio-group`.
 
 Examples:
-    
+
     <asq-multi-choice-q selected="n" attr-for-selected="custom-name">
       <asq-option custom-name="o">Oxygen</asq-option>
       <asq-option custom-name="c">Carbon</asq-option>
@@ -27,12 +27,12 @@ Examples:
       <asq-option name="h">Hydrogen</asq-option>
       <asq-option name="n">Nitrogen</asq-option>
       <asq-option name="ca">Calcium</asq-option>
-    </asq-multi-choice-q> 
+    </asq-multi-choice-q>
 
 To pre-select some options, you may use `selected` attribtue in single mode or `selected-values` in multi mode. Note that in multi mode, the value of `selected-values` should be a **valid JSON string**. That is instead of using `"['o', 'c']"`, you need to use `'["o", "c"]'`.
 
 In single mode, you can also use arrow keys to select option.
-    
+
 
 @element asq-asq-multi-choice-q
 @demo demo/index.html
@@ -40,7 +40,7 @@ In single mode, you can also use arrow keys to select option.
 @blurb ASQ choice questions.
 @homepage http://github.com/ASQ-USI-Elements/asq-multi-choice-q
 -->
-<dom-module id="asq-multi-choice-q">
+<dom-module id="asq-java-q">
   <style>
     :host {
       display: block;
@@ -48,8 +48,8 @@ In single mode, you can also use arrow keys to select option.
   </style>
   <template>
     <template is="dom-if" if="{{hasRole(role, roles.VIEWER)}}" restamp="true">
-      <asq-multi-choice-q-viewer 
-        role="viewer" 
+      <asq-java-q-viewer
+        role="viewer"
         uid="[[uid]]"
         value="{{value}}"
         multi="{{multi}}"
@@ -63,14 +63,14 @@ In single mode, you can also use arrow keys to select option.
         selected-values="{{selectedValues}}"
         event-bus="[[eventBus]]">
         <content></content>
-      </asq-multi-choice-q-viewer>
+      </asq-java-q-viewer>
     </template>
 
     <template is="dom-if" if="{{hasRole(role, roles.PRESENTER)}}" restamp="true">
-      <asq-multi-choice-q-presenter 
-        role="presenter" 
+      <asq-java-q-presenter
+        role="presenter"
         uid="[[uid]]"
-        value="{{value}}" 
+        value="{{value}}"
         multi="{{multi}}"
         disabled="{{disabled}}"
         attr-for-selected="{{attrForSelected}}"
@@ -84,12 +84,12 @@ In single mode, you can also use arrow keys to select option.
         vstats-label-font-size = "{{vstatsLabelFontSize}}"
         event-bus="[[eventBus]]">
         <content></content>
-      </asq-multi-choice-q-presenter>
+      </asq-java-q-presenter>
     </template>
   </template>
   <script>
-    Polymer({ 
-      is: 'asq-multi-choice-q',
+    Polymer({
+      is: 'asq-java-q',
 
       behaviors: [
         ASQ.asqQuestionElementBehavior
@@ -110,10 +110,10 @@ In single mode, you can also use arrow keys to select option.
          * Disable or enable the element. Changes will be also
          * propagated to inner propagated elements.
          */
-        disabled: { 
+        disabled: {
           type: Boolean,
           value: false,
-          notify: true, 
+          notify: true,
           reflectToAttribute: true
         },
         /**
@@ -133,7 +133,7 @@ In single mode, you can also use arrow keys to select option.
          * Overriden from Polymer.IronSelectableBehavior
          *
          *  If you want to use the attribute value of an element for `selected` or `selected-values` instead of the index, set this to the name of the attribute.
-         * 
+         *
          */
         attrForSelected: {
           type: String,
@@ -162,7 +162,7 @@ In single mode, you can also use arrow keys to select option.
 
         /**
          * Overriden from Polymer.IronSelectableBehavior
-         * 
+         *
          * The class to set on elements when selected.
          *
          * @attribute selectedClass
@@ -239,7 +239,7 @@ In single mode, you can also use arrow keys to select option.
           type: String,
           value: "inherit"
         },
-        
+
         /**
          * Event bus to communicate with ASQ
          */
@@ -284,14 +284,14 @@ In single mode, you can also use arrow keys to select option.
       },
 
       _setApi: function() {
-        var selector = 'asq-multi-choice-q-' + this.role;
+        var selector = 'asq-java-q-' + this.role;
         this.api = this.$$(selector);
       },
 
-      
+
       /**
        * Porxy of `toggle` in asq-multi-choice-q-viewer.
-       * 
+       *
        * Toggle the given value. By setting the `flag` you can make
        * sure the give value is to be checked or not. If the `flag` is
        * not specified, it behaves the same as `select` method.
@@ -303,13 +303,13 @@ In single mode, you can also use arrow keys to select option.
 
       /**
        * Porxy of `toggle` in asq-multi-choice-q-viewer.
-       * 
-       * Toggle the given value. 
-       * 
-       * Note, it will always set the item specified by `value` into 
+       *
+       * Toggle the given value.
+       *
+       * Note, it will always set the item specified by `value` into
        * opposite state. That is either from `checked` to not checked or
        * from not checked to `checked`.
-       * 
+       *
        */
       select: function(value) {
         if ( ! this.api || ! this.api.select ) return;
@@ -327,7 +327,7 @@ In single mode, you can also use arrow keys to select option.
 
 
       /**
-       * Collect answers from inner `asq-option`s and orgnize them 
+       * Collect answers from inner `asq-option`s and orgnize them
        * into an object.
        *
 
@@ -340,7 +340,7 @@ In single mode, you can also use arrow keys to select option.
        */
       submit: function() {
         if (this.role == this.roles.VIEWER) {
-          var el = this.$$('asq-multi-choice-q-viewer');
+          var el = this.$$('asq-java-q-viewer');
           if (!el) {
             throw new Error('submit(): expected asq-css-select-q-viewer element to exist');
           }
@@ -351,7 +351,7 @@ In single mode, you can also use arrow keys to select option.
       _valueChanged:function(newVal, oldVal){
         this.fire('questioninput', newVal)
       }
-      
+
     });
   </script>
 </dom-module>

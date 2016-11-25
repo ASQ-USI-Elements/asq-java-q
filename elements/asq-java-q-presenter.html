@@ -11,14 +11,14 @@
 
 
 <!--
-`asq-multi-choice-q` is used to define choice questions. It basically has two modes, single or multi, by setting the 
-`multi` attribute. Normally, `asq-multi-choice-q` is used with 
+`asq-multi-choice-q` is used to define choice questions. It basically has two modes, single or multi, by setting the
+`multi` attribute. Normally, `asq-multi-choice-q` is used with
 `asq-option` together by default. However it can also be used with other elements by setting the `selectable` attribute.
 
-`asq-multi-choice-q` inherits the `Polymer.IronMultiSelectableBehavior` and adapts from `paper-radio-group`. 
+`asq-multi-choice-q` inherits the `Polymer.IronMultiSelectableBehavior` and adapts from `paper-radio-group`.
 
 Examples:
-    
+
     <asq-multi-choice-q selected="n" attr-for-selected="custom-name">
       <asq-option custom-name="o">Oxygen</asq-option>
       <asq-option custom-name="c">Carbon</asq-option>
@@ -33,12 +33,12 @@ Examples:
       <asq-option name="h">Hydrogen</asq-option>
       <asq-option name="n">Nitrogen</asq-option>
       <asq-option name="ca">Calcium</asq-option>
-    </asq-multi-choice-q> 
+    </asq-multi-choice-q>
 
 To pre-select some options, you may use `selected` attribtue in single mode or `selected-values` in multi mode. Note that in multi mode, the value of `selected-values` should be a **valid JSON string**. That is instead of using `"['o', 'c']"`, you need to use `'["o", "c"]'`.
 
 In single mode, you can also use arrow keys to select option.
-    
+
 
 @element asq-multi-choice-q-presenter
 @demo demo/index.html
@@ -46,19 +46,19 @@ In single mode, you can also use arrow keys to select option.
 @blurb ASQ choice questions.
 @homepage http://github.com/ASQ-USI-Elements/asq-multi-choice-q
 -->
-<dom-module id="asq-multi-choice-q-presenter">
+<dom-module id="asq-java-q-presenter">
   <style>
     :host {
       display: block;
     }
-    
+
     /* Somehow the paper ripple inside the paper-toggle-button
     has an absolute positioning, and then takes over the whole page up
-    to the nearest relative parent unless we set the toggle position to `relative` 
+    to the nearest relative parent unless we set the toggle position to `relative`
     */
     #statsToggle{
       position:relative;
-      @apply(--asq-multi-choice-stats-toggle);
+      @apply(--asq-java-stats-toggle);
     }
   </style>
   <template>
@@ -66,7 +66,7 @@ In single mode, you can also use arrow keys to select option.
     <paper-toggle-button id="statsToggle" checked="{{_shouldShowStats}}"></paper-toggle-button>
     <content id="optionsContent" select="asq-option"></content>
     <content ></content>
-    <nvd3-discrete-bar 
+    <nvd3-discrete-bar
       id="vbarchart"
       hidden$="[[_hideVerticalStats(statsLayout, _shouldShowStats)]]"
       height="{{vstatsHeight}}"
@@ -111,8 +111,8 @@ In single mode, you can also use arrow keys to select option.
       });
     }
 
-    Polymer({ 
-      is: 'asq-multi-choice-q-presenter',
+    Polymer({
+      is: 'asq-java-q-presenter',
 
       behaviors: [
         Polymer.IronMultiSelectableBehavior,
@@ -133,10 +133,10 @@ In single mode, you can also use arrow keys to select option.
          * Disable or enable the element. Changes will be also
          * propagated to inner propagated elements.
          */
-        disabled: { 
+        disabled: {
           type: Boolean,
           value: false,
-          notify: true, 
+          notify: true,
           observer: '_disabledChanged',
           reflectToAttribute: true
         },
@@ -158,7 +158,7 @@ In single mode, you can also use arrow keys to select option.
          * Overriden from Polymer.IronSelectableBehavior
          *
          *  If you want to use the attribute value of an element for `selected` or `selected-values` instead of the index, set this to the name of the attribute.
-         * 
+         *
          */
         attrForSelected: {
           type: String,
@@ -187,7 +187,7 @@ In single mode, you can also use arrow keys to select option.
 
         /**
          * Overriden from Polymer.IronSelectableBehavior
-         * 
+         *
          * The class to set on elements when selected.
          *
          * @attribute selectedClass
@@ -293,7 +293,7 @@ In single mode, you can also use arrow keys to select option.
         this._refreshVBarChart();
       },
 
-      // clear all selections when role has changed 
+      // clear all selections when role has changed
       _onRoleChanged: function() {
         if ( this._initialized ) {
           this.clear();
@@ -328,7 +328,7 @@ In single mode, you can also use arrow keys to select option.
         });
 
         this.fire('asq-initialized', {
-          is: this.is, 
+          is: this.is,
           which: this,
           initialized: this._initialized
         });
@@ -336,7 +336,7 @@ In single mode, you can also use arrow keys to select option.
         // TODO: temp solution before the pull request gets merged:
         // https://github.com/PolymerElements/iron-selector/pull/64
         this._removeListener(this.activateEvent);
-        this._addListener(this.activateEvent);  
+        this._addListener(this.activateEvent);
       },
 
       _shouldShowStatsChanged: function(newVal, oldVal){
@@ -367,7 +367,7 @@ In single mode, you can also use arrow keys to select option.
         this.async(function(){
           d3.select(this.$.vbarchart.svg).selectAll('.nv-discretebar .nv-group').each(function(group){
             var g = d3.select(this);
-            
+
             // Remove previous labels if there is any
             g.selectAll('text').remove();
             g.selectAll('.nv-bar').each(function(bar){
@@ -410,7 +410,7 @@ In single mode, you can also use arrow keys to select option.
                 //   var width = this.getBBox().width;
                 //   return (parseFloat(barWidth) / 2) - (width / 2);
                 // })
-                
+
             });
           });
         },300);
@@ -456,10 +456,10 @@ In single mode, you can also use arrow keys to select option.
       /**
        * Overriden from Polymer.IronMultiSelectableBehavior
        *
-       * Modifications: 1) clear all selections first; 
+       * Modifications: 1) clear all selections first;
        * 2) propagate changes to all options.
        *
-       * 
+       *
        */
       multiChanged: function(multi) {
         if ( this._initialized ) {
@@ -483,24 +483,24 @@ In single mode, you can also use arrow keys to select option.
           this.select(value);
           return
         }
-        
+
         if ( typeof flag === 'boolean' && flag !== this.hasSelected(value) ) {
           this.select(value);
         }
       },
 
       /**
-       * Toggle the given value. 
-       * 
-       * Note, it will always set the item specified by `value` into 
+       * Toggle the given value.
+       *
+       * Note, it will always set the item specified by `value` into
        * opposite state. That is either from `checked` to not checked or
        * from not checked to `checked`.
-       * 
+       *
        */
       select: function(value) {
         if ( this.disabled ) return;
         Polymer.IronMultiSelectableBehaviorImpl.select.apply(this, [value]);
-        this.fire('asq-multi-choice-q-changed');
+        this.fire('asq-java-q-changed');
       },
 
       /**
@@ -515,10 +515,10 @@ In single mode, you can also use arrow keys to select option.
        * Check if the given value has been selected.
        */
       hasSelected: function(value) {
-        if ( ! this.multi ) 
-          return this.selected === value 
+        if ( ! this.multi )
+          return this.selected === value
         else
-          return this.selectedValues.indexOf(value) >=0 
+          return this.selectedValues.indexOf(value) >=0
       },
 
 
@@ -539,13 +539,13 @@ In single mode, you can also use arrow keys to select option.
         if (!evt || ! evt.questionType) return;
         // FIXME
         // A strange problem: it will get an event twice
-        // with different `this`!! 
+        // with different `this`!!
         if ( this.items.length === 0 ) return;
-        
-        if ( evt.questionType == 'asq-multi-choice-q' ) {
+
+        if ( evt.questionType == 'asq-java-q' ) {
           if ( evt.type == 'progress' ){
             this._onProgress(evt);
-          } 
+          }
           else if(evt.type == 'restorePresenter'){
             this._onRestorePresenter(evt);
           }
@@ -567,7 +567,7 @@ In single mode, you can also use arrow keys to select option.
 
       _onRestorePresenter: function(evt){
         if ( !evt.questions ) return;
-        
+
         evt.questions.forEach(function(q){
           if( q.uid != this.uid ) return;
 
@@ -586,7 +586,7 @@ In single mode, you can also use arrow keys to select option.
         //simultaneously update nv3d and asq-options
 
         // we will use the local ordering of options but first we need to check
-        // that they match the database 
+        // that they match the database
         var domOpts =  this.items.map(function(el){ return el.uid});
         if(domOpts.slice().sort().join(',')!== Object.keys(options).sort().join(',')){
           throw Error("remote options don't match local options")
@@ -607,7 +607,7 @@ In single mode, you can also use arrow keys to select option.
           values: data
         }]
 
-        
+
         // for (var key in options){
         //   if(options.hasOwnProperty(key)){
         //     this._updateOptionProgress(key, options[key], total);
@@ -658,7 +658,7 @@ In single mode, you can also use arrow keys to select option.
       _hideVerticalStats: function(statsLayout, showStats){
         return statsLayout === "horizontal" || showStats === false;
       }
-      
+
     });
   </script>
 </dom-module>

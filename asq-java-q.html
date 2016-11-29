@@ -1,0 +1,262 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../asq-base/asq-base.html">
+<link rel="import" href="elements/asq-java-q-viewer.html">
+<link rel="import" href="elements/asq-java-q-presenter.html">
+
+<!--
+`asq-java-q` is a Java question type.
+
+Example:
+
+    <asq-java-q tabsize="2">
+      <asq-stem><h4>Implement a for loop in Java</h4></asq-stem>
+    </asq-java-q>
+
+@element asq-java-q
+@demo demo/index.html
+@group ASQ Elements
+@blurb ASQ Java question.
+@homepage http://github.com/ASQ-USI-Elements/asq-java-q
+-->
+<dom-module id="asq-java-q">
+  <style>
+    :host{
+      @apply(--layout-vertical);
+      min-width:100px;
+      min-height: 200px;
+    }
+  </style>
+  <template>
+    <template is="dom-if" if="{{hasRole(role, roles.VIEWER)}}" restamp="true">
+      <asq-java-q-viewer
+        uid="[[uid]]"
+        id="le-viewer"
+        mode="{{mode}}"
+        theme="{{theme}}"
+        font-size="{{fontSize}}"
+        tab-size="{{tabSize}}"
+        disabled="{{disabled}}"
+        value="{{value}}"
+        wrap="{{wrap}}"
+        event-bus="[[eventBus]]">
+        <content></content>
+      </asq-java-q-viewer>
+    </template>
+
+    <template is="dom-if" if="{{hasRole(role, roles.PRESENTER)}}" restamp="true">
+      <asq-java-q-presenter
+        uid="[[uid]]"
+        id="le-presenter"
+        mode="{{mode}}"
+        theme="{{theme}}"
+        font-size="{{fontSize}}"
+        tab-size="{{tabSize}}"
+        disabled="{{disabled}}"
+        value="{{value}}"
+        wrap="{{wrap}}"
+        event-bus="[[eventBus]]">
+        <content></content>
+      </asq-java-q-presenter>
+    </template>
+  </template>
+  <script>
+    Polymer({
+      is: 'asq-java-q',
+
+      behaviors: [
+        ASQ.asqQuestionElementBehavior
+      ],
+
+      properties: {
+        _answers: {
+          type: Array,
+          notify: true,
+          value: function() { return []; }
+        },
+        /**
+         * Set to true to style the element as disabled.
+         * Binded to `readonly` of ace-editor.
+         */
+        disabled: {
+          type: Boolean,
+          value: false,
+          notify: true,
+          reflectToAttribute: true
+        },
+        /**
+         * The fontSize property of the ace-element.
+         */
+        fontSize: {
+          type: String,
+          value: "12px",
+          notify: true,
+          reflectToAttribute: true
+        },
+        /**
+         * The mode property of the ace-element.
+         */
+        mode: {
+          type: String,
+          value: 'java',
+          reflectToAttribute: true,
+          notify: true
+        },
+        /**
+         * The tabSize property of the ace-element.
+         */
+        tabSize: {
+          type: Number,
+          value: 2,
+          notify: true,
+          reflectToAttribute: true,
+        },
+        /**
+         * The theme property of the ace-element.
+         */
+        theme: {
+          type: String,
+          value: 'monokai',
+          notify: true,
+          reflectToAttribute: true,
+        },
+        /**
+         * The value property of the ace-element.
+         */
+        value: {
+          type: String,
+          value: '',
+          notify: true,
+          reflectToAttribute: true,
+          observer: '_valueChanged'
+        },
+        /**
+         * The wrap property of the ace-element.
+         */
+        wrap: {
+          type: Boolean,
+          value: false,
+          notify: true,
+          reflectToAttribute: true,
+        },
+        _selectedSubmissionItem: {
+          observer: '_selectedSubmissionItemChanged'
+        },
+        _selectedTab:{
+          notify: true
+        },
+        /**
+         * Event bus to communicate with ASQ
+         */
+        eventBus: {
+          type: Object,
+          observer: "_eventBusChanged",
+          notify: true
+        }
+      },
+
+      /**
+       * A proxy that can interface with inner element.
+       */
+      api: undefined,
+
+
+      created: function () {
+        document.addEventListener('asq-ready', function (evt) {
+          this.eventBus = evt.detail.asqEventBus
+        }.bind(this));
+
+        this.listen(this, 'role-changed', '_onRoleChanged');
+        this.listen(this, 'asq-option-ready', '_onOptionReady');
+        this.listen(this, 'asq-initialized', '_onInitialized');
+      },
+
+      _onOptionReady: function() {
+        this._propagateRole(this.role);
+      },
+
+      attached: function() {
+        this.async(function() {
+          this._setApi();
+        })
+      },
+
+      _onRoleChanged: function() {
+        this._setApi();
+      },
+
+      _onInitialized: function() {
+        this._setApi();
+      },
+
+      _setApi: function() {
+        var selector = 'asq-java-q-' + this.role;
+        this.api = this.$$(selector);
+      },
+
+
+      /**
+       * Porxy of `toggle` in asq-multi-choice-q-viewer.
+       *
+       * Toggle the given value. By setting the `flag` you can make
+       * sure the give value is to be checked or not. If the `flag` is
+       * not specified, it behaves the same as `select` method.
+       */
+      toggle: function(value, flag) {
+        if ( ! this.api || ! this.api.toggle ) return;
+        this.api.toggle(value, flag);
+      },
+
+      /**
+       * Porxy of `toggle` in asq-multi-choice-q-viewer.
+       *
+       * Toggle the given value.
+       *
+       * Note, it will always set the item specified by `value` into
+       * opposite state. That is either from `checked` to not checked or
+       * from not checked to `checked`.
+       *
+       */
+      select: function(value) {
+        if ( ! this.api || ! this.api.select ) return;
+        this.api.select(value);
+      },
+
+      /**
+       * Clear all selections.
+       */
+      clear: function() {
+        if ( ! this.api || ! this.api.clear ) return;
+        this.api.clear();
+      },
+
+
+
+      /**
+       * Collect answers from inner `asq-option`s and orgnize them
+       * into an object.
+       *
+
+          {
+            uid: this.uid,
+            timestamp: new Date(),
+            options: options
+          }
+
+       */
+      submit: function() {
+        if (this.role == this.roles.VIEWER) {
+          var el = this.$$('asq-java-q-viewer');
+          if (!el) {
+            throw new Error('submit(): expected asq-css-select-q-viewer element to exist');
+          }
+          return el.submit();
+        }
+      },
+
+      _valueChanged:function(newVal, oldVal){
+        this.fire('questioninput', newVal)
+      }
+
+    });
+  </script>
+</dom-module>

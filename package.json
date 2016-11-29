@@ -1,0 +1,46 @@
+{
+  "name": "asq-java-q",
+  "version": "0.2.0",
+  "description": "Java question type for ASQ.",
+  "contributors": [
+    "Vasileios Triglianos <triglian@gmail.com>",
+    "Grigory Rebinskiy <grigory.rebinskiy@usi.ch>",
+    "Kyriakos Stylianopoulos <kyriakos.stylianopoulos@usi.ch>",
+    "Alexander Fischer <alexander.fischer@usi.ch>",
+    "Patrick Balestra <patrick.balestra@usi.ch>",
+    "Marco Tollini <marco.tollini@usi.ch>"
+  ],
+  "homepage": "https://github.com/ASQ-USI-Elements/asq-java-q",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:ASQ-USI-Elements/asq-java-q.git"
+  },
+  "keywords": [
+    "node.js"
+  ],
+  "bugs": {
+    "url": "https://github.com/ASQ-USI-Elements/asq-java-q/issues"
+  },
+  "dependencies": {
+    "asq-plugin": "ASQ-USI/asq-plugin",
+    "bluebird": "^2.8.2",
+    "cheerio": "^0.18.0",
+    "lodash": "^3.7.0",
+    "bson-objectid": "^1.1.1"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "chai": "^1.10.0",
+    "eslint": "^3.10.2",
+    "eslint-config-airbnb": "^13.0.0",
+    "eslint-plugin-import": "^2.2.0",
+    "eslint-plugin-jsx-a11y": "^2.2.3",
+    "eslint-plugin-react": "^6.7.1",
+    "mocha": "^2.1.0",
+    "sinon": "^1.12.2"
+  },
+  "asq": {
+    "type": "question"
+  }
+}

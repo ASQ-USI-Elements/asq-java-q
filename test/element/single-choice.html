@@ -1,0 +1,45 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="asq" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+  <title>asq-multi-choice-q</title>
+
+  <script src="../../../webcomponentsjs/webcomponents.min.js"></script>
+  <script src="../../../web-component-tester/browser.js"></script>
+
+  <!-- Step 1: import the element to test -->
+  <link rel="import" href="../../asq-multi-choice-q.html">
+  <link rel="import" href="../../../asq-base/asq-base.html">
+</head>
+<body>
+
+  <!-- You use the document as a place to set up your fixtures. -->
+  <asq-multi-choice-q id="m">
+    <asq-stem><h3>An asq-multi-choice-q question where you can choose only one answer.</h3></asq-stem>
+    <asq-option name="option-1">Option 1</asq-option>
+    <asq-option name="option-2">Option 2</asq-option>
+    <asq-option name="option-3">Option 3</asq-option>
+    <asq-option name="option-4">Option 4</asq-option>
+  </asq-multi-choice-q>
+
+  <script>
+    var m = document.querySelector('#m');
+    suite('<asq-multi-choice-q>', function() {
+      test('test default values', function() {
+        assert.equal(m.multi, false);
+      });
+
+      test('test default mixin values', function() {
+        assert.isTrue(m.isASQElement);
+        assert.isTrue(m.isASQQuestionTypeElement);
+        assert.equal(m.uid, '');
+        assert.equal(m.role, 'viewer');
+      });
+
+      
+    });
+  </script>
+
+</body>
+</html>

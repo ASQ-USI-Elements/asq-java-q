@@ -1,0 +1,274 @@
+<link rel="import" href="../../polymer/polymer.html">
+<link rel="import" href="../../asq-base/asq-base.html">
+<link rel="import" href="../../iron-list/iron-list.html">
+<link rel="import" href="../../iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../ace-element/ace-element.html">
+
+<!--
+`asq-java-q` is a Java question type.
+
+Example:
+
+    <asq-java-q tabsize="2">
+      <asq-stem><h4>Implement a for loop in Java</h4></asq-stem>
+    </asq-java-q>
+
+@element asq-java-q
+@demo demo/index.html
+@group ASQ Elements
+@blurb ASQ Java question.
+@homepage http://github.com/ASQ-USI-Elements/asq-java-q
+-->
+<dom-module id="asq-java-q-presenter">
+  <style>
+  :host{
+    @apply(--layout-vertical);
+    @apply(--layout-flex);
+    --paper-tabs-selection-bar-color: #333;
+    position: relative;
+    min-width:100px;
+    min-height: 300px;
+  }
+  #le-content{
+    @apply(--layout-horizontal);
+    @apply(--layout-flex);
+    @apply(--asq-code-q-content);
+  }
+  #aceContainer{
+    position:relative;
+    min-height:150px;
+    @apply(--layout-flex-3);
+    @apply(--asq-code-q-aceContainer);
+  }
+  #list-container{
+    @apply(--layout-flex);
+    @apply(--layout-vertical);
+  }
+  #submissionListWrapper{
+    @apply(--layout-flex);
+    display: none;
+  }
+  #submissionList {
+    @apply(--layout-flex);
+  }
+  #submissionList paper-item{
+    overflow:hidden;
+    padding: 12px 5px 0;
+    background-color: white;
+    cursor: pointer;
+    font-family: Menlo,Monaco,Consolas,"Courier New",monospace;
+    @apply(--shadow-elevation-2dp);
+    outline:none;
+  }
+  #submissionList paper-item[focused]{
+    background-color: var(--google-grey-300);
+  }
+  </style>
+  <template>
+    <div class="content-wrapper">
+      <content select="asq-stem"></content>
+    </div>
+
+    <div id="le-content">
+      <div id="aceContainer">
+        <ace-element id="editor" theme="{{theme}}" mode="{{mode}}" readonly="{{disabled}}" wrap="{{wrap}}" font-size="{{fontSize}}" tabsize="{{tabSize}}">{{value}}</ace-element>
+      </div>
+
+      <div id="list-container">
+        <paper-tabs selected="0" selected-attribute="active" noink role="tablist">
+          <paper-tab on-click="toggleSubmissionList" role="tab">Submissions</paper-tab>
+        </paper-tabs>
+          <div id="submissionListWrapper">
+            <iron-list id="submissionList" items="[[_submissions]]" as="submission" selection-enabled selected-item="{{_selectedSubmissionItem}}">
+              <template>
+                <paper-item>#<span>[[indexPlusOne(index)]]</span>&nbsp;&nbsp;<span>[[submission.submission]]</span>
+                </paper-item>
+              </template>
+            </iron-list>
+          </div>
+      </div>
+    </div>
+  </template>
+  <script>
+  function getBaseLog(x, y) {
+    return Math.log(y) / Math.log(x);
+  }
+
+    function tWrap(text, width) {
+      text.each(function() {
+        var text = d3.select(this),
+            words = text.text().trim().split(/\s+/).reverse(),
+            word,
+            line = [],
+            lineNumber = 0,
+            lineHeight = 1.1, // ems
+            y = text.attr("y")  || 0,
+            dy = parseFloat(text.attr("dy")) || 0,
+            tspan = text.text(null).append("tspan")
+              .attr("x", 0)
+              .attr("y", y)
+              .attr("dy", dy + "em");
+        while (word = words.pop()) {
+          line.push(word);
+          tspan.text(line.join(" "));
+          if (tspan.node().getComputedTextLength() > width) {
+            line.pop();
+            tspan.text(line.join(" "));
+            line = [word];
+            tspan = text.append("tspan").attr("x", 0).attr("y", y).attr("dy", ++lineNumber * lineHeight + dy + "em").text(word);
+          }
+          // align center
+          var w = tspan.node().getComputedTextLength();
+          var tspanX = (parseFloat(width) / 2) - (w / 2);
+          tspan.attr("x", tspanX)
+        }
+      });
+    }
+
+    Polymer({
+      is: 'asq-java-q-presenter',
+
+      properties: {
+        _answers: {
+          type: Array,
+          notify: true,
+          value: function() { return []; }
+        },
+        /**
+         * Set to true to style the element as disabled.
+         * Binded to `readonly` of ace-editor.
+         */
+        disabled: {
+          type: Boolean,
+          value: false,
+          notify: true,
+          reflectToAttribute: true
+        },
+        /**
+         * The fontSize property of the ace-element.
+         */
+        fontSize: {
+          type: String,
+          value: "12px",
+          notify: true,
+          reflectToAttribute: true
+        },
+        /**
+         * The mode property of the ace-element.
+         */
+        mode: {
+          type: String,
+          value: 'java',
+          reflectToAttribute: true,
+          notify: true
+        },
+        /**
+         * The tabSize property of the ace-element.
+         */
+        tabSize: {
+          type: Number,
+          value: 2,
+          notify: true,
+          reflectToAttribute: true,
+        },
+        /**
+         * The theme property of the ace-element.
+         */
+        theme: {
+          type: String,
+          value: 'monokai',
+          notify: true,
+          reflectToAttribute: true,
+        },
+        /**
+         * The value property of the ace-element.
+         */
+        value: {
+          type: String,
+          value: '',
+          notify: true,
+          reflectToAttribute: true,
+          observer: '_valueChanged'
+        },
+        /**
+         * The wrap property of the ace-element.
+         */
+        wrap: {
+          type: Boolean,
+          value: false,
+          notify: true,
+          reflectToAttribute: true,
+        },
+        _selectedSubmissionItem: {
+          observer: '_selectedSubmissionItemChanged'
+        },
+        _selectedTab:{
+          notify: true
+        },
+        /**
+         * Event bus to communicate with ASQ
+         */
+        eventBus: {
+          type: Object,
+          observer: "_eventBusChanged",
+          notify: true
+        }
+      },
+      toggleSubmissionList: function(evt, detail){
+        var current = this.$.submissionListWrapper.style.display;
+        this.$.submissionListWrapper.style.display = (current == 'flex') ? 'none': 'flex';
+        this.$.submissionList.notifyResize();
+      },
+      attached: function(){
+        //delay to make sure ace-editors are initialized
+        setTimeout(function(){
+          this.$.editor.addEventListener('editor-input', this._editorValueChanged.bind(this))
+          this.$.editor.editor.resize();
+        }.bind(this), 1)
+      },
+      indexPlusOne: function(index){
+        return ++index;
+      },
+      _valueChanged: function(newVal){
+        if(this.value && this.$.editor.editorValue != this.value){
+          this.$.editor.editorValue = this.value;
+          this.$.editor.editor.clearSelection(1);
+        }
+      },
+      _editorValueChanged: function(evt){
+        this.value = evt.target.editorValue;
+      },
+      _selectedSubmissionItemChanged: function(newItem, old){
+        if(! newItem) return;
+        this.value = newItem.submission;
+      },
+      _onQuestionType: function (evt) {
+        if (!evt || !evt.questionType)
+          return;
+        if (evt.questionType == 'asq-code-q') {
+          if (evt.type == 'progress') {
+            this._onProgress(evt);
+          } else if (evt.type == 'restorePresenter') {
+            this._onRestorePresenter(evt);
+          }
+        }
+      },
+      _onRestorePresenter: function (evt) {
+        evt.questions.forEach(function(q){
+         if(q.uid != this.uid) return;
+         this._submissions = q.answers;
+        }.bind(this));
+      },
+      _onProgress: function (evt) {
+        if (!evt.question || evt.question.uid !== this.uid)
+          return;
+        this._submissions = evt.question.answers;
+      },
+      _eventBusChanged: function (eventBus, old) {
+        if(!eventBus) return;
+        eventBus.on('asq:question_type', this._onQuestionType.bind(this));
+      }
+
+    });
+  </script>
+</dom-module>

@@ -2,8 +2,11 @@
 <link rel="import" href="../../asq-base/asq-base.html">
 <link rel="import" href="../../iron-list/iron-list.html">
 <link rel="import" href="../../iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../paper-toolbar/paper-toolbar.html">
+<link rel="import" href="../../paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../ace-element/ace-element.html">
 <link rel="import" href="../../iron-a11y-keys-behavior/iron-a11y-keys-behavior.html">
+<link rel="import" href="../../iron-icons/av-icons.html">
 
 <!--
 `asq-java-q` is a Java question type.
@@ -22,23 +25,71 @@ Example:
 -->
 <dom-module id="asq-java-q-viewer">
   <style>
-    :host[disabled]{
-      opacity:0.65;
-    }
-    :host{
-      @apply(--layout-vertical);
-      @apply(--layout-flex);
-      position: relative;
-      min-width:100px;
-      min-height: 300px;
-    }
-    #aceContainer{
-      @apply(--layout-flex);
-      position:relative;
-    }
+  :host{
+    @apply(--layout-vertical);
+    @apply(--layout-flex);
+    min-width:100px;
+    min-height: 300px;
+    --paper-toolbar-background: #CFD8DC;
+    --paper-toolbar-color: #000;
+  }
+
+  #statusMsg{
+     padding:0 0.4em;
+     @apply(--layout-flex);
+  }
+
+  #errorMsg{
+    @apply(--asq-sqlite-q-error-message);
+    color: red;
+    font-family: monospace;
+  }
+
+  #le-content{
+   @apply(--layout-horizontal);
+   @apply(--layout-flex);
+   @apply(--asq-sqlite-q-content);
+  }
+
+  #main-container{
+    @apply(--layout-flex);
+    @apply(--layout-vertical);
+  }
+
+  #aceContainer{
+    @apply(--layout-flex);
+    position:relative;
+    @apply(--asq-sqlite-q-aceContainer);
+  }
+
+  #output{
+    @apply(--asq-sqlite-q-output);
+    @apply(--layout-flex);
+    padding-top: 20px;
+    overflow-y: auto;
+  }
+
+  table {
+    width:auto;
+    border:1px solid black;
+    border-collapse:collapse;
+    margin-bottom:10px;
+  }
+
+  th{
+    font-family: monospace;
+  }
+
+  th, td {
+    border:1px solid #777;
+  }
   </style>
   <template>
     <div id="leContent"><content select="asq-stem"></content></div>
+    <paper-toolbar>
+      <paper-icon-button id="executeBtn" icon="av:play-arrow" on-tap="_onExecuteBtnTap" title="Execute Query"></paper-icon-button>
+      <span id="statusMsg">{{_statusMessage}}</span>
+    </paper-toolbar>
     <div id="aceContainer" flex="">
       <ace-element id="editor" theme="{{theme}}" mode="{{mode}}" readonly="{{disabled}}" wrap="{{wrap}}" font-size="{{fontSize}}" tab-size="{{tabSize}}">[[value]]</ace-element>
     </div>

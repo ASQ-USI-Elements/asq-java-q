@@ -14,70 +14,27 @@
     body{
       font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
     }
-
-    asq-option {
-      display: block;
-    }
-
-    .asq-selected {
-      background-color: #CFD8DC;
-    }
-
-
-    asq-java-q > asq-option {
-      --asq-option-viewer-unchecked-ink-color: #FF1744;
-      --asq-option-viewer-checked-ink-color: #2E7D32;
-      --asq-option-viewer-checked-color: red;
-      --asq-option-viewer-unchecked-background-color: #D7CCC8;
-    }
-
-
-
-    asq-java-q[multi] > asq-option {
-      --asq-option-viewer-unchecked-ink-color: #FF1744;
-      --asq-option-viewer-checked-ink-color: #2E7D32;
-      --asq-option-viewer-checked-color: black;
-      --asq-option-viewer-unchecked-background-color: white;
-    }
-
-    asq-java-q[multi] > asq-option[name="n"] {
-      --asq-option-viewer-unchecked-ink-color: #FF1744;
-      --asq-option-viewer-checked-ink-color: blue;
-      --asq-option-viewer-checked-color: #6200EA;
-      --asq-option-viewer-unchecked-background-color: #FFB74D;
-    }
-
-    asq-option.blue {
-      --asq-option-presenter-progress-active-color: var(--paper-light-blue-500);
-    }
-
-    asq-option.red {
-      --asq-option-presenter-progress-active-color: var(--paper-red-500);
-    }
-
   </style>
-
-
 </head>
 
 <body>
 
     <h4>A Java <code>asq-java-q</code> question for viewer.</h4>
-    <asq-java-q selected-values='["h", "ca"]' multi>
+    <asq-java-q>
 
     </asq-java-q>
 
     <hr>
 
     <h4>A Java <code>asq-java-q</code> question for viewer.</h4>
-    <asq-java-q selected="n" attr-for-selected="custom-name">
+    <asq-java-q>
 
     </asq-java-q>
 
     <hr>
 
     <h4>A Java <code>asq-java-q</code> question for presenter.</h4>
-    <asq-java-q attr-for-selected="name" role="presenter">
+    <asq-java-q role="presenter">
 
     </asq-java-q>
 
@@ -116,7 +73,5 @@
       asqmcP._updateProgress(progress , 100)
     })
   </script>
-
-
 </body>
 </html>

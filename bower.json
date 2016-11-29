@@ -17,6 +17,7 @@
   "license": "MIT",
   "dependencies": {
     "polymer": "Polymer/Polymer#^1.2.1",
+    "ace-element": "triglian/ace-element#master",
     "asq-base": "ASQ-USI-Elements/asq-base#master",
     "asq-option": "ASQ-USI-Elements/asq-option#master",
     "iron-selector": "PolymerElements/iron-selector#^1.0.8",

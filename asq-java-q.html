@@ -42,25 +42,24 @@ In single mode, you can also use arrow keys to select option.
 -->
 <dom-module id="asq-java-q">
   <style>
-    :host {
-      display: block;
+    :host{
+      @apply(--layout-vertical);
+      min-width:100px;
+      min-height: 200px;
     }
   </style>
   <template>
     <template is="dom-if" if="{{hasRole(role, roles.VIEWER)}}" restamp="true">
       <asq-java-q-viewer
-        role="viewer"
         uid="[[uid]]"
-        value="{{value}}"
-        multi="{{multi}}"
+        id="le-viewer"
+        mode="{{mode}}"
+        theme="{{theme}}"
+        font-size="{{fontSize}}"
+        tab-size="{{tabSize}}"
         disabled="{{disabled}}"
-        attr-for-selected="{{attrForSelected}}"
-        selectable="{{selectable}}"
-        selected-class="{{selectedClass}}"
-        selected-attribute="{{selectedAttribute}}"
-        excluded-local-names="{{excludedLocalNames}}"
-        selected="{{selected}}"
-        selected-values="{{selectedValues}}"
+        value="{{value}}"
+        wrap="{{wrap}}"
         event-bus="[[eventBus]]">
         <content></content>
       </asq-java-q-viewer>
@@ -68,20 +67,15 @@ In single mode, you can also use arrow keys to select option.
 
     <template is="dom-if" if="{{hasRole(role, roles.PRESENTER)}}" restamp="true">
       <asq-java-q-presenter
-        role="presenter"
         uid="[[uid]]"
-        value="{{value}}"
-        multi="{{multi}}"
+        id="le-presenter"
+        mode="{{mode}}"
+        theme="{{theme}}"
+        font-size="{{fontSize}}"
+        tab-size="{{tabSize}}"
         disabled="{{disabled}}"
-        attr-for-selected="{{attrForSelected}}"
-        selectable="{{selectable}}"
-        selected-class="{{selectedClass}}"
-        selected-attribute="{{selectedAttribute}}"
-        excluded-local-names="{{excludedLocalNames}}"
-        stats-layout="{{statsLayout}}"
-        vstats-height = "{{vstatsHeight}}"
-        vstats-width = "{{vstatsWidth}}"
-        vstats-label-font-size = "{{vstatsLabelFontSize}}"
+        value="{{value}}"
+        wrap="{{wrap}}"
         event-bus="[[eventBus]]">
         <content></content>
       </asq-java-q-presenter>
@@ -95,20 +89,15 @@ In single mode, you can also use arrow keys to select option.
         ASQ.asqQuestionElementBehavior
       ],
 
-
       properties: {
-        /**
-         * The selected options.
-         */
-        value: {
-          type: Object,
+        _answers: {
+          type: Array,
           notify: true,
-          observer: "_valueChanged"
+          value: function() { return []; }
         },
-
         /**
-         * Disable or enable the element. Changes will be also
-         * propagated to inner propagated elements.
+         * Set to true to style the element as disabled.
+         * Binded to `readonly` of ace-editor.
          */
         disabled: {
           type: Boolean,
@@ -117,134 +106,72 @@ In single mode, you can also use arrow keys to select option.
           reflectToAttribute: true
         },
         /**
-         * Overriden from Polymer.IronMultiSelectableBehavior
-         * Modification: set the `reflectToAttribute` field.
-         *
-         * Decide the mode, single or multi.
+         * The fontSize property of the ace-element.
          */
-        multi: {
-          type: Boolean,
-          value: false,
+        fontSize: {
+          type: String,
+          value: "12px",
+          notify: true,
           reflectToAttribute: true
         },
-
-
         /**
-         * Overriden from Polymer.IronSelectableBehavior
-         *
-         *  If you want to use the attribute value of an element for `selected` or `selected-values` instead of the index, set this to the name of the attribute.
-         *
+         * The mode property of the ace-element.
          */
-        attrForSelected: {
+        mode: {
           type: String,
-          value: 'name'
-        },
-
-        /**
-         * Overriden from Polymer.IronSelectableBehavior
-         *
-         * The attribute to set on elements when selected.
-         */
-        selectedAttribute: {
-          type: String,
-          value: 'checked'
-        },
-
-        /**
-         * Overriden from Polymer.IronSelectableBehavior
-         *
-         * This is a CSS selector sting.  If this is set, only items that matches the CSS selector are selectable.
-         */
-        selectable: {
-          type: String,
-          value: 'asq-option'
-        },
-
-        /**
-         * Overriden from Polymer.IronSelectableBehavior
-         *
-         * The class to set on elements when selected.
-         *
-         * @attribute selectedClass
-         * @type {string}
-         */
-        selectedClass: {
-          type: String,
-          value: 'asq-selected'
-        },
-
-        _answers: {
-          type: Array,
+          value: 'java',
+          reflectToAttribute: true,
           notify: true
         },
-
-        _initialized: {
+        /**
+         * The tabSize property of the ace-element.
+         */
+        tabSize: {
+          type: Number,
+          value: 2,
+          notify: true,
+          reflectToAttribute: true,
+        },
+        /**
+         * The theme property of the ace-element.
+         */
+        theme: {
+          type: String,
+          value: 'monokai',
+          notify: true,
+          reflectToAttribute: true,
+        },
+        /**
+         * The value property of the ace-element.
+         */
+        value: {
+          type: String,
+          value: '',
+          notify: true,
+          reflectToAttribute: true,
+          observer: '_valueChanged'
+        },
+        /**
+         * The wrap property of the ace-element.
+         */
+        wrap: {
           type: Boolean,
           value: false,
+          notify: true,
+          reflectToAttribute: true,
+        },
+        _selectedSubmissionItem: {
+          observer: '_selectedSubmissionItemChanged'
+        },
+        _selectedTab:{
           notify: true
         },
-
-        /**
-         * Gets or sets the selected element. The default is to use the index of the item.
-         *
-         * @attribute selected
-         * @type {string}
-         */
-        selected: {
-          type: String,
-          notify: true
-        },
-
-        selectedValues: {
-          type: Array,
-          notify: true,
-          value: function() {
-            return []
-          }
-        },
-
-        /**
-        * display `horizontal` or `vertical` bar chart on the presenter.
-        */
-        statsLayout:{
-          type: String,
-          value: "horizontal",
-          notify: true,
-          reflectToAttribute:true
-        },
-
-        /**
-        * The height of the nv3d bar chart in pixels. Only used when `statsLayout="vertical"`
-        * Default: The height of the container element.
-        */
-        vstatsHeight:{
-          type: Number,
-          value: 400
-        },
-
-        /**
-        * The width of the nv3d bar chart in pixels. Only used when `statsLayout="vertical"`
-        * Default: The width of the container element.
-        */
-        vstatsWidth:{
-          type: Number
-        },
-
-        /**
-        * The base font-size for the labels. Important: this doesn't match the final size
-        * which is calculated by taking into account the base font-size and the width of
-        * the bars.
-        */
-        vstatsLabelFontSize:{
-          type: String,
-          value: "inherit"
-        },
-
         /**
          * Event bus to communicate with ASQ
          */
         eventBus: {
           type: Object,
+          observer: "_eventBusChanged",
           notify: true
         }
       },

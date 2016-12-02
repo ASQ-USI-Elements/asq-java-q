@@ -258,7 +258,7 @@ Example:
       submit: function (evt) {
         // We have to differentiate whether we are submitting or just running the code for testing.
         let isSubmission = true;
-        if (evt.target !== undefined && evt.target.parentNode.id == 'executeBtn') {
+        if (evt !== undefined && evt.target.parentNode.id == 'executeBtn') {
           isSubmission: false
         }
         if (!this.value) {

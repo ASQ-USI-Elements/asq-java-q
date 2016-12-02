@@ -118,6 +118,30 @@ Example:
       border:1px solid #777;
     }
 
+
+    paper-icon-button{
+      border-radius: 2px;
+      margin: 2px;
+    }
+
+    paper-icon-button.outline {
+      box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
+    }
+
+    paper-icon-button:hover:not([disabled]) {
+      box-shadow: 0 1px 0 0 rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.1);
+    }
+
+    paper-icon-button.selected:not([disabled]) {
+      background-color: rgba(0, 0, 0, 0.05);
+      box-shadow: inset 0 1px 0 0 rgba(0, 0, 0, 0.05), 0 0 0 1px rgba(0, 0, 0, 0.12);
+    }
+
+    paper-icon-button:active:not([disabled]), paper-icon-button.selected:active:not([disabled]) {
+      background-color: rgba(0, 0, 0, 0.05);
+      box-shadow: inset 0 1px 0 0 rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(0, 0, 0, 0.12);
+    }
+
     #solutionBtn{
       margin-left: 14px;
     }
@@ -300,6 +324,17 @@ Example:
           this.$.editor.editor.clearSelection(1);
         }
       },
+
+      _onExecuteBtnTap: function (evt) {
+        //TODO
+        console.log("Executing code");
+      },
+
+      _onSolutionBtnTap: function(evt) {
+        //TODO
+        console.log("Toggling solution");
+      },
+
       _editorValueChanged: function(evt){
         this.value = evt.target.editorValue;
       },

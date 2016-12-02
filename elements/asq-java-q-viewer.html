@@ -87,7 +87,7 @@ Example:
   <template>
     <div id="leContent"><content select="asq-stem"></content></div>
     <paper-toolbar>
-      <paper-icon-button id="executeBtn" icon="av:play-arrow" on-tap="_onExecuteBtnTap" title="Execute Query"></paper-icon-button>
+      <paper-icon-button id="executeBtn" icon="av:play-arrow" on-tap="submit" title="Execute Query"></paper-icon-button>
       <span id="statusMsg">{{_statusMessage}}</span>
     </paper-toolbar>
     <div id="aceContainer" flex="">
@@ -210,6 +210,7 @@ Example:
       _onExecuteBtnTap: function (evt) {
         //TODO
         console.log("Executing code");
+        console.log(this.value);
       },
 
       /**
@@ -223,15 +224,21 @@ Example:
        *
        * @method submit
        */
-      submit: function () {
+      submit: function (evt) {
+        // We have to differentiate whether we are submitting or just running the code for testing.
+        let isSubmission = true;
+        if (evt.target.parentNode.id == 'executeBtn') {
+          isSubmission: false
+        }
         if (!this.value) {
           this.value = '';
         }
-        submission = this.value;
+        let submission = this.value;
         return {
           questionUid: this.uid,
           timestamp: new Date(),
-          submission: submission
+          submission: submission,
+          isSubmission: isSubmission
         };
       },
       // ready: function () {
@@ -246,7 +253,7 @@ Example:
       _onQuestionType: function (evt) {
         if (!evt || !evt.questionType)
           return;
-        if (evt.questionType == 'asq-code-q') {
+        if (evt.questionType == 'asq-java-q') {
           if (evt.type == 'restoreViewer') {
             this._onRestoreViewer(evt);
           }

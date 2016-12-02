@@ -159,19 +159,13 @@ Example:
        */
       api: undefined,
 
-
       created: function () {
         document.addEventListener('asq-ready', function (evt) {
           this.eventBus = evt.detail.asqEventBus
         }.bind(this));
 
         this.listen(this, 'role-changed', '_onRoleChanged');
-        this.listen(this, 'asq-option-ready', '_onOptionReady');
         this.listen(this, 'asq-initialized', '_onInitialized');
-      },
-
-      _onOptionReady: function() {
-        this._propagateRole(this.role);
       },
 
       attached: function() {
@@ -192,44 +186,6 @@ Example:
         var selector = 'asq-java-q-' + this.role;
         this.api = this.$$(selector);
       },
-
-
-      /**
-       * Porxy of `toggle` in asq-multi-choice-q-viewer.
-       *
-       * Toggle the given value. By setting the `flag` you can make
-       * sure the give value is to be checked or not. If the `flag` is
-       * not specified, it behaves the same as `select` method.
-       */
-      toggle: function(value, flag) {
-        if ( ! this.api || ! this.api.toggle ) return;
-        this.api.toggle(value, flag);
-      },
-
-      /**
-       * Porxy of `toggle` in asq-multi-choice-q-viewer.
-       *
-       * Toggle the given value.
-       *
-       * Note, it will always set the item specified by `value` into
-       * opposite state. That is either from `checked` to not checked or
-       * from not checked to `checked`.
-       *
-       */
-      select: function(value) {
-        if ( ! this.api || ! this.api.select ) return;
-        this.api.select(value);
-      },
-
-      /**
-       * Clear all selections.
-       */
-      clear: function() {
-        if ( ! this.api || ! this.api.clear ) return;
-        this.api.clear();
-      },
-
-
 
       /**
        * Collect answers from inner `asq-option`s and orgnize them

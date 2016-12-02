@@ -93,6 +93,29 @@ Example:
     <div id="aceContainer" flex="">
       <ace-element id="editor" theme="{{theme}}" mode="{{mode}}" readonly="{{disabled}}" wrap="{{wrap}}" font-size="{{fontSize}}" tab-size="{{tabSize}}">[[value]]</ace-element>
     </div>
+
+    <div id="output">
+      <div id="errorMsg">{{_errorMessage}}</div>
+      <template is="dom-repeat" items="{{_results}}" as="result">
+        <table>
+          <thead>
+            <template is="dom-repeat" items="{{result.columns}}" as="column">
+              <th>{{column}}</th>
+            </template>
+          </thead>
+          <tbody>
+             <template is="dom-repeat" items="{{result.values}}" as="row">
+               <tr>
+                <template is="dom-repeat" items="{{row}}" as="cell">
+                  <td>{{cell}}</td>
+                </template>
+               </tr>
+             </template>
+          </tbody>
+        </table>
+      </template>
+    </div>
+
   </template>
   <script>
     Polymer({
@@ -171,7 +194,15 @@ Example:
           type: Object,
           observer: "_eventBusChanged",
           notify: true
-        }
+        },
+
+        // _statusMessage: {
+        //   type: String,
+        //   value: '',
+        //   notify: true,
+        //   reflectToAttribute: true,
+        // },
+
       },
       /**
        * The `submit` method returns an object that respresents the submission of this question. The object has the following structure:
@@ -207,11 +238,11 @@ Example:
         this.value = evt.target.editorValue;
       },
 
-      _onExecuteBtnTap: function (evt) {
-        //TODO
-        console.log("Executing code");
-        console.log(this.value);
-      },
+      // _onExecuteBtnTap: function (evt) {
+      //   //TODO
+      //   console.log("Executing code");
+      //   console.log(this.value);
+      // },
 
       /**
        * The `submit` method returns an object that respresents the submission of this question. The object has the following structure:
@@ -233,6 +264,9 @@ Example:
         if (!this.value) {
           this.value = '';
         }
+
+        this._statusMessage = "Running"; // Change when we receive results
+
         let submission = this.value;
         return {
           questionUid: this.uid,

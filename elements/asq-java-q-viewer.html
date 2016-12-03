@@ -40,7 +40,7 @@ Example:
   }
 
   #errorMsg{
-    @apply(--asq-sqlite-q-error-message);
+    @apply(--asq-java-q-error-message);
     color: red;
     font-family: monospace;
   }
@@ -48,7 +48,7 @@ Example:
   #le-content{
    @apply(--layout-horizontal);
    @apply(--layout-flex);
-   @apply(--asq-sqlite-q-content);
+   @apply(--asq-java-q-content);
   }
 
   #main-container{
@@ -59,11 +59,11 @@ Example:
   #aceContainer{
     @apply(--layout-flex);
     position:relative;
-    @apply(--asq-sqlite-q-aceContainer);
+    @apply(--asq-java-q-aceContainer);
   }
 
   #output{
-    @apply(--asq-sqlite-q-output);
+    @apply(--asq-java-q-output);
     @apply(--layout-flex);
     padding-top: 20px;
     overflow-y: auto;
@@ -85,36 +85,82 @@ Example:
   }
   </style>
   <template>
-    <div id="leContent"><content select="asq-stem"></content></div>
-    <paper-toolbar>
-      <paper-icon-button id="executeBtn" icon="av:play-arrow" on-tap="submit" title="Execute Query"></paper-icon-button>
-      <span id="statusMsg">{{_statusMessage}}</span>
-    </paper-toolbar>
-    <div id="aceContainer" flex="">
-      <ace-element id="editor" theme="{{theme}}" mode="{{mode}}" readonly="{{disabled}}" wrap="{{wrap}}" font-size="{{fontSize}}" tab-size="{{tabSize}}">[[value]]</ace-element>
+    <div class="content-wrapper">
+      <content select="asq-stem"></content>
     </div>
 
-    <div id="output">
-      <div id="errorMsg">{{_errorMessage}}</div>
-      <template is="dom-repeat" items="{{_results}}" as="result">
-        <table>
-          <thead>
-            <template is="dom-repeat" items="{{result.columns}}" as="column">
-              <th>{{column}}</th>
-            </template>
-          </thead>
-          <tbody>
-             <template is="dom-repeat" items="{{result.values}}" as="row">
-               <tr>
-                <template is="dom-repeat" items="{{row}}" as="cell">
-                  <td>{{cell}}</td>
+    <div id="le-content">
+      <div id="main-container">
+
+        <paper-toolbar>
+          <paper-icon-button id="executeBtn" icon="av:play-arrow" on-tap="_onExecuteBtnTap" title="Execute Query"></paper-icon-button>
+          <span id="statusMsg">{{_statusMessage}}</span>
+        </paper-toolbar>
+        <div id="aceContainer" flex="">
+          <ace-element id="editor" theme="{{theme}}" mode="sql" readonly="{{disabled}}" wrap="{{wrap}}" font-size="{{fontSize}}" tab-size="{{tabSize}}">[[value]]</ace-element>
+        </div>
+
+        <div id="output">
+          <div id="errorMsg">{{_errorMessage}}</div>
+          <template is="dom-repeat" items="{{_results}}" as="result">
+            <table>
+              <thead>
+                <template is="dom-repeat" items="{{result.columns}}" as="column">
+                  <th>{{column}}</th>
                 </template>
-               </tr>
-             </template>
-          </tbody>
-        </table>
-      </template>
+              </thead>
+              <tbody>
+                 <template is="dom-repeat" items="{{result.values}}" as="row">
+                   <tr>
+                    <template is="dom-repeat" items="{{row}}" as="cell">
+                      <td>{{cell}}</td>
+                    </template>
+                   </tr>
+                 </template>
+              </tbody>
+            </table>
+          </template>
+        </div>
+
+      </div>
     </div>
+    <!-- <div id="content-wrapper"><content select="asq-stem"></content></div>
+
+    <div id="le-content">
+      <div id="main-container">
+        <paper-toolbar>
+          <paper-icon-button id="executeBtn" icon="av:play-arrow" on-tap="submit" title="Execute Query"></paper-icon-button>
+          <span id="statusMsg">{{_statusMessage}}</span>
+        </paper-toolbar>
+        <div id="aceContainer" flex="">
+          <ace-element id="editor" theme="{{theme}}" mode="{{mode}}" readonly="{{disabled}}" wrap="{{wrap}}" font-size="{{fontSize}}" tab-size="{{tabSize}}">[[value]]</ace-element>
+        </div>
+
+        <div id="output">
+          <div id="errorMsg">{{_errorMessage}}</div>
+          <template is="dom-repeat" items="{{_results}}" as="result">
+            <table>
+              <thead>
+                <template is="dom-repeat" items="{{result.columns}}" as="column">
+                  <th>{{column}}</th>
+                </template>
+              </thead>
+              <tbody>
+                <template is="dom-repeat" items="{{result.values}}" as="row">
+                  <tr>
+                    <template is="dom-repeat" items="{{row}}" as="cell">
+                      <td>{{cell}}</td>
+                    </template>
+                  </tr>
+                </template>
+              </tbody>
+            </table>
+          </template>
+        </div>
+
+      </div>
+    </div> -->
+
 
   </template>
   <script>

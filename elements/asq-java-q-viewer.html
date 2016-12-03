@@ -93,11 +93,11 @@ Example:
       <div id="main-container">
 
         <paper-toolbar>
-          <paper-icon-button id="executeBtn" icon="av:play-arrow" on-tap="_onExecuteBtnTap" title="Execute Query"></paper-icon-button>
+          <paper-icon-button id="executeBtn" icon="av:play-arrow" on-tap="submit" title="Execute Query"></paper-icon-button>
           <span id="statusMsg">{{_statusMessage}}</span>
         </paper-toolbar>
         <div id="aceContainer" flex="">
-          <ace-element id="editor" theme="{{theme}}" mode="sql" readonly="{{disabled}}" wrap="{{wrap}}" font-size="{{fontSize}}" tab-size="{{tabSize}}">[[value]]</ace-element>
+          <ace-element id="editor" theme="{{theme}}" mode="java" readonly="{{disabled}}" wrap="{{wrap}}" font-size="{{fontSize}}" tab-size="{{tabSize}}">[[value]]</ace-element>
         </div>
 
         <div id="output">
@@ -124,43 +124,6 @@ Example:
 
       </div>
     </div>
-    <!-- <div id="content-wrapper"><content select="asq-stem"></content></div>
-
-    <div id="le-content">
-      <div id="main-container">
-        <paper-toolbar>
-          <paper-icon-button id="executeBtn" icon="av:play-arrow" on-tap="submit" title="Execute Query"></paper-icon-button>
-          <span id="statusMsg">{{_statusMessage}}</span>
-        </paper-toolbar>
-        <div id="aceContainer" flex="">
-          <ace-element id="editor" theme="{{theme}}" mode="{{mode}}" readonly="{{disabled}}" wrap="{{wrap}}" font-size="{{fontSize}}" tab-size="{{tabSize}}">[[value]]</ace-element>
-        </div>
-
-        <div id="output">
-          <div id="errorMsg">{{_errorMessage}}</div>
-          <template is="dom-repeat" items="{{_results}}" as="result">
-            <table>
-              <thead>
-                <template is="dom-repeat" items="{{result.columns}}" as="column">
-                  <th>{{column}}</th>
-                </template>
-              </thead>
-              <tbody>
-                <template is="dom-repeat" items="{{result.values}}" as="row">
-                  <tr>
-                    <template is="dom-repeat" items="{{row}}" as="cell">
-                      <td>{{cell}}</td>
-                    </template>
-                  </tr>
-                </template>
-              </tbody>
-            </table>
-          </template>
-        </div>
-
-      </div>
-    </div> -->
-
 
   </template>
   <script>
@@ -242,12 +205,12 @@ Example:
           notify: true
         },
 
-        // _statusMessage: {
-        //   type: String,
-        //   value: '',
-        //   notify: true,
-        //   reflectToAttribute: true,
-        // },
+        _statusMessage: {
+          type: String,
+          value: '',
+          notify: true,
+          reflectToAttribute: true,
+        },
 
       },
       /**
@@ -304,14 +267,22 @@ Example:
       submit: function (evt) {
         // We have to differentiate whether we are submitting or just running the code for testing.
         let isSubmission = true;
-        if (evt !== undefined && evt.target.parentNode.id == 'executeBtn') {
-          isSubmission: false
+        // For some reason, the evt.target is different when testing
+        // the module by itself or inside a full presentation.
+        if (evt !== undefined
+            && (evt.target.parentNode.id == 'executeBtn'
+                || evt.target.id == 'executeBtn'))
+        {
+          isSubmission = false;
+          // console.log("Just running the code");
+        } else {
+          // console.log("Submitting");
         }
         if (!this.value) {
           this.value = '';
         }
 
-        this._statusMessage = "Running"; // Change when we receive results
+        this._statusMessage = "Running"; // TODO: Change when we receive results
 
         let submission = this.value;
         return {

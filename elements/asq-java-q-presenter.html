@@ -238,6 +238,10 @@ Example:
     Polymer({
       is: 'asq-java-q-presenter',
 
+      behaviors: [
+        ASQ.asqQuestionElementBehavior
+      ],
+
       properties: {
         _answers: {
           type: Array,

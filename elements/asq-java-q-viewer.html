@@ -130,6 +130,10 @@ Example:
     Polymer({
       is: 'asq-java-q-viewer',
 
+      behaviors: [
+        ASQ.asqQuestionElementBehavior
+      ],
+
       properties: {
         /**
          * Set to true to style the element as disabled.

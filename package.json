@@ -25,9 +25,11 @@
   "dependencies": {
     "asq-plugin": "ASQ-USI/asq-plugin",
     "bluebird": "^2.8.2",
+    "bson-objectid": "^1.1.1",
     "cheerio": "^0.18.0",
+    "json-socket": "*",
     "lodash": "^3.7.0",
-    "bson-objectid": "^1.1.1"
+    "net": "^1.0.2"
   },
   "license": "MIT",
   "devDependencies": {

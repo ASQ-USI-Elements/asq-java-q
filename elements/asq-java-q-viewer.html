@@ -251,11 +251,16 @@ Example:
         this.value = evt.target.editorValue;
       },
 
-      // _onExecuteBtnTap: function (evt) {
-      //   //TODO
-      //   console.log("Executing code");
-      //   console.log(this.value);
-      // },
+      _onExecuteBtnTap: function (evt) {
+        //TODO: not tested
+        console.log("Executing code");
+        console.log(this.value);
+        this.eventBus.emit('asq:run', {
+          questionUid: this.uid,
+          timestamp: new Date(),
+          submission: submission,
+        });
+      },
 
       /**
        * The `submit` method returns an object that respresents the submission of this question. The object has the following structure:
@@ -286,7 +291,7 @@ Example:
           this.value = '';
         }
 
-        this._statusMessage = "Running"; // TODO: Change when we receive results
+        this._statusMessage = "Running";
 
         let submission = this.value;
         return {
@@ -321,9 +326,16 @@ Example:
          this.value = q.submission;
         }.bind(this));
       },
+
+      _onReceiveResult: function(evt) {
+        console.log(evt); // TODO
+        this._statusMessage = 'Finished running';
+      },
+
       _eventBusChanged: function (eventBus, old) {
         if(!eventBus) return;
         eventBus.on('asq:question_type', this._onQuestionType.bind(this));
+        eventBus.on('asq:output', this._onReceiveResult.bind(this));
       }
     });
   </script>

@@ -76,7 +76,7 @@ Example:
     margin-bottom:10px;
   }
 
-  th{
+  th, #outputMsg{
     font-family: monospace;
   }
 
@@ -102,24 +102,7 @@ Example:
 
         <div id="output">
           <div id="errorMsg">{{_errorMessage}}</div>
-          <template is="dom-repeat" items="{{_results}}" as="result">
-            <table>
-              <thead>
-                <template is="dom-repeat" items="{{result.columns}}" as="column">
-                  <th>{{column}}</th>
-                </template>
-              </thead>
-              <tbody>
-                 <template is="dom-repeat" items="{{result.values}}" as="row">
-                   <tr>
-                    <template is="dom-repeat" items="{{row}}" as="cell">
-                      <td>{{cell}}</td>
-                    </template>
-                   </tr>
-                 </template>
-              </tbody>
-            </table>
-          </template>
+          <div id="outputMsg">{{_outputMessage}}</div>
         </div>
 
       </div>
@@ -211,29 +194,25 @@ Example:
 
         _statusMessage: {
           type: String,
-          value: '',
+          value: 'Press the button to run.',
+          notify: true,
+          reflectToAttribute: true,
+        },
+        _errorMessage: {
+          type: String,
+          value: 'Error goes here.',
+          notify: true,
+          reflectToAttribute: true,
+        },
+        _outputMessage: {
+          type: String,
+          value: 'Output goes here.',
           notify: true,
           reflectToAttribute: true,
         },
 
       },
-      /**
-       * The `submit` method returns an object that respresents the submission of this question. The object has the following structure:
-           {
-              questionUid: this.uid,
-              timestamp: new Date(),
-              submission: []
-           }
-       * Only enabled when the `role` of the element is <b>viewer</b>.
-       *
-       * @method submit
-       */
-      // submit: function () {
-      //   var submission = this.$.editor.editor.session.getValue();
-      //   return {
-      //     submission: submission
-      //   };
-      // },
+
       attached: function(){
         //delay to make sure ace-editors are initialized
         setTimeout(function(){
@@ -252,21 +231,11 @@ Example:
       },
 
       _onExecuteBtnTap: function (evt) {
-        //TODO: not tested
         console.log("Executing code");
         console.log(this.value);
         console.log(this.eventBus);
 
-        // this.eventBus.emit('plugin', {
-        //   type: 'asq-java-q',
-        //   data: {
-        //     questionUid: this.uid,
-        //     timestamp: new Date(),
-        //     submission: this.value
-        //   }
-        // });
-
-          this.eventBus.emit('asq-plugin', {
+        this.eventBus.emit('asq-plugin', {
           type: 'asq-java-q',
           data: {
             questionUid: this.uid,
@@ -288,23 +257,6 @@ Example:
        * @method submit
        */
       submit: function (evt) {
-        // We have to differentiate whether we are submitting or just running the code for testing.
-        let isSubmission = true;
-        // For some reason, the evt.target is different when testing
-        // the module by itself or inside a full presentation.
-        if (evt !== undefined
-            && (evt.target.parentNode.id == 'executeBtn'
-                || evt.target.id == 'executeBtn'))
-        {
-          isSubmission = false;
-          // console.log("Just running the code");
-        } else {
-          // console.log("Submitting");
-        }
-        if (!this.value) {
-          this.value = '';
-        }
-
         this._statusMessage = "Running";
 
         let submission = this.value;
@@ -312,18 +264,9 @@ Example:
           questionUid: this.uid,
           timestamp: new Date(),
           submission: submission,
-          isSubmission: isSubmission
         };
       },
-      // ready: function () {
-      //   if (!this.value) {
-      //     var code = Polymer.dom(this).querySelector('code');
-      //     if (code) {
-      //       //this.value = code.textContent;
-      //       //console.log(code.textContent)
-      //     }
-      //   }
-      // }
+
       _onQuestionType: function (evt) {
         console.log('hi', evt);
         if (!evt || !evt.questionType)
@@ -345,17 +288,32 @@ Example:
         }.bind(this));
       },
 
+      /**
+        Response:
+        {
+          clientId: String,
+          passed: Boolean,
+          output: String,
+          errorMessage: String,
+          timeOut: Boolean
+        }
+       */
       _onReceiveResult: function(evt) {
-        console.log(evt); // TODO
         this._statusMessage = 'Finished running';
         this._errorMessage = evt.data.output;
+
+        if (!evt.data.passed) {
+          this._errorMessage = evt.data.errorMessage;
+          this._outputMessage = '';
+        } else {
+          this._errorMessage = 'No error';
+          this._outputMessage = evt.data.output;
+        }
       },
 
       _eventBusChanged: function (eventBus, old) {
         if(!eventBus) return;
-        console.log("jshdfhljasdjhfj");
         eventBus.on('asq:question_type', this._onQuestionType.bind(this));
-        // eventBus.on('asq:output', this._onReceiveResult.bind(this));
       }
     });
   </script>

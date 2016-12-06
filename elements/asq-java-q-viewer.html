@@ -257,9 +257,12 @@ Example:
         console.log(this.value);
 
         this.eventBus.emit('asq:run', {
-          questionUid: this.uid,
-          timestamp: new Date(),
-          submission: this.value,
+          type: 'asq-java-q',
+          data: {
+            questionUid: this.uid,
+            timestamp: new Date(),
+            submission: this.value
+          }
         });
       },
 

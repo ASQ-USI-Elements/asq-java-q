@@ -93,7 +93,7 @@ Example:
       <div id="main-container">
 
         <paper-toolbar>
-          <paper-icon-button id="executeBtn" icon="av:play-arrow" on-tap="submit" title="Execute Query"></paper-icon-button>
+          <paper-icon-button id="executeBtn" icon="av:play-arrow" on-tap="_onExecuteBtnTap" title="Execute Query"></paper-icon-button>
           <span id="statusMsg">{{_statusMessage}}</span>
         </paper-toolbar>
         <div id="aceContainer" flex="">
@@ -255,8 +255,18 @@ Example:
         //TODO: not tested
         console.log("Executing code");
         console.log(this.value);
+        console.log(this.eventBus);
 
-        this.eventBus.emit('asq:run', {
+        this.eventBus.emit('plugin', {
+          type: 'asq-java-q',
+          data: {
+            questionUid: this.uid,
+            timestamp: new Date(),
+            submission: this.value
+          }
+        });
+
+          this.eventBus.emit('asq-plugin', {
           type: 'asq-java-q',
           data: {
             questionUid: this.uid,

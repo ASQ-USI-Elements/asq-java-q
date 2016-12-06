@@ -348,6 +348,7 @@ Example:
       _onReceiveResult: function(evt) {
         console.log(evt); // TODO
         this._statusMessage = 'Finished running';
+        this._errorMessage = evt.data.output;
       },
 
       _eventBusChanged: function (eventBus, old) {

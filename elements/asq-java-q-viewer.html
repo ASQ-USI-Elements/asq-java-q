@@ -275,7 +275,6 @@ Example:
           if (evt.type == 'restoreViewer') {
             this._onRestoreViewer(evt);
           } else if (evt.type == 'output') {
-            console.log("Receiving something ");
             this._onReceiveResult(evt);
           }
         }
@@ -300,7 +299,6 @@ Example:
        */
       _onReceiveResult: function(evt) {
         this._statusMessage = 'Finished running';
-        this._errorMessage = evt.data.output;
 
         if (!evt.data.passed) {
           this._errorMessage = evt.data.errorMessage;

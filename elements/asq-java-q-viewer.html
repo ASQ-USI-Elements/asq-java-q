@@ -217,23 +217,7 @@ Example:
         },
 
       },
-      /**
-       * The `submit` method returns an object that respresents the submission of this question. The object has the following structure:
-           {
-              questionUid: this.uid,
-              timestamp: new Date(),
-              submission: []
-           }
-       * Only enabled when the `role` of the element is <b>viewer</b>.
-       *
-       * @method submit
-       */
-      // submit: function () {
-      //   var submission = this.$.editor.editor.session.getValue();
-      //   return {
-      //     submission: submission
-      //   };
-      // },
+
       attached: function(){
         //delay to make sure ace-editors are initialized
         setTimeout(function(){

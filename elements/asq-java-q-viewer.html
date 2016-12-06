@@ -251,12 +251,6 @@ Example:
         this.value = evt.target.editorValue;
       },
 
-      // _onExecuteBtnTap: function (evt) {
-      //   //TODO
-      //   console.log("Executing code");
-      //   console.log(this.value);
-      // },
-
       /**
        * The `submit` method returns an object that respresents the submission of this question. The object has the following structure:
            {
@@ -269,42 +263,17 @@ Example:
        * @method submit
        */
       submit: function (evt) {
-        // We have to differentiate whether we are submitting or just running the code for testing.
-        let isSubmission = true;
-        // For some reason, the evt.target is different when testing
-        // the module by itself or inside a full presentation.
-        if (evt !== undefined
-            && (evt.target.parentNode.id == 'executeBtn'
-                || evt.target.id == 'executeBtn'))
-        {
-          isSubmission = false;
-          // console.log("Just running the code");
-        } else {
-          // console.log("Submitting");
-        }
         if (!this.value) {
           this.value = '';
         }
-
         this._statusMessage = "Running"; // TODO: Change when we receive results
 
-        let submission = this.value;
         return {
           questionUid: this.uid,
           timestamp: new Date(),
           submission: submission,
-          isSubmission: isSubmission
         };
       },
-      // ready: function () {
-      //   if (!this.value) {
-      //     var code = Polymer.dom(this).querySelector('code');
-      //     if (code) {
-      //       //this.value = code.textContent;
-      //       //console.log(code.textContent)
-      //     }
-      //   }
-      // }
       _onQuestionType: function (evt) {
         if (!evt || !evt.questionType)
           return;

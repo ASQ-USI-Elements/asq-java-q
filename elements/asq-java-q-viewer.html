@@ -255,10 +255,11 @@ Example:
         //TODO: not tested
         console.log("Executing code");
         console.log(this.value);
+
         this.eventBus.emit('asq:run', {
           questionUid: this.uid,
           timestamp: new Date(),
-          submission: submission,
+          submission: this.value,
         });
       },
 

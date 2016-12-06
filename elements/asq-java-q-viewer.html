@@ -257,14 +257,14 @@ Example:
         console.log(this.value);
         console.log(this.eventBus);
 
-        this.eventBus.emit('plugin', {
-          type: 'asq-java-q',
-          data: {
-            questionUid: this.uid,
-            timestamp: new Date(),
-            submission: this.value
-          }
-        });
+        // this.eventBus.emit('plugin', {
+        //   type: 'asq-java-q',
+        //   data: {
+        //     questionUid: this.uid,
+        //     timestamp: new Date(),
+        //     submission: this.value
+        //   }
+        // });
 
           this.eventBus.emit('asq-plugin', {
           type: 'asq-java-q',
@@ -325,11 +325,15 @@ Example:
       //   }
       // }
       _onQuestionType: function (evt) {
+        console.log('hi', evt);
         if (!evt || !evt.questionType)
           return;
         if (evt.questionType == 'asq-java-q') {
           if (evt.type == 'restoreViewer') {
             this._onRestoreViewer(evt);
+          } else if (evt.type == 'output') {
+            console.log("Receiving something ");
+            this._onReceiveResult(evt);
           }
         }
       },
@@ -348,8 +352,9 @@ Example:
 
       _eventBusChanged: function (eventBus, old) {
         if(!eventBus) return;
+        console.log("jshdfhljasdjhfj");
         eventBus.on('asq:question_type', this._onQuestionType.bind(this));
-        eventBus.on('asq:output', this._onReceiveResult.bind(this));
+        // eventBus.on('asq:output', this._onReceiveResult.bind(this));
       }
     });
   </script>

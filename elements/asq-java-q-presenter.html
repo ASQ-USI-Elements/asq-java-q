@@ -3,6 +3,14 @@
 <link rel="import" href="../../iron-list/iron-list.html">
 <link rel="import" href="../../iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../../ace-element/ace-element.html">
+<link rel="import" href="../../paper-toolbar/paper-toolbar.html">
+<link rel="import" href="../../paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../iron-icons/av-icons.html">
+<link rel="import" href="../../iron-icons/iron-icons.html">
+<link rel="import" href="../../paper-item/paper-item.html">
+<link rel="import" href="../../paper-tabs/paper-tab.html">
+<link rel="import" href="../../paper-tabs/paper-tabs.html">
+<link rel="import" href="../../paper-styles/color.html">
 
 <!--
 `asq-java-q` is a Java question type.
@@ -24,45 +32,119 @@ Example:
   :host{
     @apply(--layout-vertical);
     @apply(--layout-flex);
-    --paper-tabs-selection-bar-color: #333;
-    position: relative;
     min-width:100px;
     min-height: 300px;
+    --paper-tabs-selection-bar-color: #333;
+    --paper-toolbar-background: #CFD8DC;
+    --paper-toolbar-color: #000;
   }
-  #le-content{
-    @apply(--layout-horizontal);
+
+  #statusMsg{
+     padding:0 0.4em;
+     @apply(--layout-flex);
+  }
+
+  #errorMsg{
+    @apply(--asq-java-q-error-message);
+    color: red;
+    font-family: monospace;
+  }
+
+  #output{
+    @apply(--asq-java-q-output);
     @apply(--layout-flex);
-    @apply(--asq-code-q-content);
+    padding-top: 20px;
+    overflow-y: auto;
   }
+
+  #le-content{
+   @apply(--layout-horizontal);
+   @apply(--layout-flex);
+   @apply(--asq-java-q-content);
+  }
+
+  #main-container{
+    @apply(--layout-flex-3);
+    @apply(--layout-vertical);
+  }
+
   #aceContainer{
     position:relative;
     min-height:150px;
-    @apply(--layout-flex-3);
-    @apply(--asq-code-q-aceContainer);
+    @apply(--layout-flex);
+    @apply(--asq-java-q-aceContainer);
   }
+
   #list-container{
     @apply(--layout-flex);
     @apply(--layout-vertical);
-  }
+   }
+
   #submissionListWrapper{
     @apply(--layout-flex);
     display: none;
   }
-  #submissionList {
-    @apply(--layout-flex);
-  }
-  #submissionList paper-item{
-    overflow:hidden;
-    padding: 12px 5px 0;
-    background-color: white;
-    cursor: pointer;
-    font-family: Menlo,Monaco,Consolas,"Courier New",monospace;
-    @apply(--shadow-elevation-2dp);
-    outline:none;
-  }
-  #submissionList paper-item[focused]{
-    background-color: var(--google-grey-300);
-  }
+
+   #submissionList {
+     @apply(--layout-flex);
+   }
+
+   #submissionList paper-item{
+     overflow:hidden;
+     padding: 12px 5px 0;
+     background-color: white;
+     cursor: pointer;
+     font-family: Menlo,Monaco,Consolas,"Courier New",monospace;
+     @apply(--shadow-elevation-2dp);
+     outline:none;
+   }
+
+    #submissionList paper-item[focused]{
+      background-color: var(--google-grey-300);
+    }
+
+    table {
+      width:auto;
+      border:1px solid black;
+      border-collapse:collapse;
+      margin-bottom:10px;
+    }
+
+    th{
+      font-family: monospace;
+    }
+
+    th, td {
+      border:1px solid #777;
+    }
+
+
+    paper-icon-button{
+      border-radius: 2px;
+      margin: 2px;
+    }
+
+    paper-icon-button.outline {
+      box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
+    }
+
+    paper-icon-button:hover:not([disabled]) {
+      box-shadow: 0 1px 0 0 rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.1);
+    }
+
+    paper-icon-button.selected:not([disabled]) {
+      background-color: rgba(0, 0, 0, 0.05);
+      box-shadow: inset 0 1px 0 0 rgba(0, 0, 0, 0.05), 0 0 0 1px rgba(0, 0, 0, 0.12);
+    }
+
+    paper-icon-button:active:not([disabled]), paper-icon-button.selected:active:not([disabled]) {
+      background-color: rgba(0, 0, 0, 0.05);
+      box-shadow: inset 0 1px 0 0 rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(0, 0, 0, 0.12);
+    }
+
+    #solutionBtn{
+      margin-left: 14px;
+    }
   </style>
   <template>
     <div class="content-wrapper">
@@ -70,8 +152,36 @@ Example:
     </div>
 
     <div id="le-content">
-      <div id="aceContainer">
-        <ace-element id="editor" theme="{{theme}}" mode="{{mode}}" readonly="{{disabled}}" wrap="{{wrap}}" font-size="{{fontSize}}" tabsize="{{tabSize}}">{{value}}</ace-element>
+      <div id="main-container">
+        <paper-toolbar>
+          <paper-icon-button id="executeBtn" icon="av:play-arrow" on-tap="_onExecuteBtnTap" title="Execute Query"></paper-icon-button>
+          <span id="statusMsg">{{_statusMessage}}</span>
+          <paper-icon-button id="solutionBtn" icon="done-all" on-tap="_onSolutionBtnTap" title="Show Solution"></paper-icon-button>
+        </paper-toolbar>
+        <div id="aceContainer">
+          <ace-element id="editor" theme="{{theme}}" mode="{{mode}}" readonly="{{disabled}}" wrap="{{wrap}}" font-size="{{fontSize}}" tabsize="{{tabSize}}">{{value}}</ace-element>
+        </div>
+        <div id="output">
+          <div id="errorMsg">{{_errorMessage}}</div>
+          <template is="dom-repeat" items="{{_results}}" as="result">
+            <table>
+              <thead>
+                <template is="dom-repeat" items="{{result.columns}}" as="column">
+                  <th>{{column}}</th>
+                </template>
+              </thead>
+              <tbody>
+                 <template is="dom-repeat" items="{{result.values}}" as="row">
+                   <tr>
+                    <template is="dom-repeat" items="{{row}}" as="cell">
+                      <td>{{cell}}</td>
+                    </template>
+                   </tr>
+                 </template>
+              </tbody>
+            </table>
+          </template>
+        </div>
       </div>
 
       <div id="list-container">
@@ -127,6 +237,10 @@ Example:
 
     Polymer({
       is: 'asq-java-q-presenter',
+
+      behaviors: [
+        ASQ.asqQuestionElementBehavior
+      ],
 
       properties: {
         _answers: {
@@ -235,6 +349,17 @@ Example:
           this.$.editor.editor.clearSelection(1);
         }
       },
+
+      _onExecuteBtnTap: function (evt) {
+        console.log("Executing code");
+        this._statusMessage = "Running"; // Change when we receive results
+      },
+
+      _onSolutionBtnTap: function(evt) {
+        //TODO
+        console.log("Toggling solution");
+      },
+
       _editorValueChanged: function(evt){
         this.value = evt.target.editorValue;
       },

@@ -188,6 +188,20 @@ Example:
         this.api = this.$$(selector);
       },
 
+      ready: function () {
+        if (!this.value) {
+          var code = Polymer.dom(this).querySelector('code');
+          if (code) {
+            this.value = code.textContent;
+          }
+        }
+
+        document.addEventListener('asq-ready', function (evt) {
+          this.eventBus = evt.detail.asqEventBus
+        }.bind(this));
+
+      },
+
       /**
        * Collect answers from inner `asq-option`s and orgnize them
        * into an object.

@@ -145,6 +145,11 @@ Example:
     #solutionBtn{
       margin-left: 14px;
     }
+
+    #outputMsg{
+      padding-top: 20px;
+      font-family: monospace;
+    }
   </style>
   <template>
     <div class="content-wrapper">
@@ -163,24 +168,7 @@ Example:
         </div>
         <div id="output">
           <div id="errorMsg">{{_errorMessage}}</div>
-          <template is="dom-repeat" items="{{_results}}" as="result">
-            <table>
-              <thead>
-                <template is="dom-repeat" items="{{result.columns}}" as="column">
-                  <th>{{column}}</th>
-                </template>
-              </thead>
-              <tbody>
-                 <template is="dom-repeat" items="{{result.values}}" as="row">
-                   <tr>
-                    <template is="dom-repeat" items="{{row}}" as="cell">
-                      <td>{{cell}}</td>
-                    </template>
-                   </tr>
-                 </template>
-              </tbody>
-            </table>
-          </template>
+          <div id="outputMsg">{{_outputMessage}}</div>
         </div>
       </div>
 
@@ -326,7 +314,26 @@ Example:
           type: Object,
           observer: "_eventBusChanged",
           notify: true
-        }
+        },
+
+        _statusMessage: {
+          type: String,
+          value: 'Press the button to run.',
+          notify: true,
+          reflectToAttribute: true,
+        },
+        _errorMessage: {
+          type: String,
+          value: 'Error goes here.',
+          notify: true,
+          reflectToAttribute: true,
+        },
+        _outputMessage: {
+          type: String,
+          value: 'Output goes here.',
+          notify: true,
+          reflectToAttribute: true,
+        },
       },
       toggleSubmissionList: function(evt, detail){
         var current = this.$.submissionListWrapper.style.display;
@@ -350,9 +357,19 @@ Example:
         }
       },
 
+      /**
+       * When pressing the run button, send the data to the backend
+       * for compilation.
+       */
       _onExecuteBtnTap: function (evt) {
-        console.log("Executing code");
-        this._statusMessage = "Running"; // Change when we receive results
+        this.eventBus.emit('asq-plugin', {
+          type: 'asq-java-q',
+          data: {
+            questionUid: this.uid,
+            timestamp: new Date(),
+            submission: this.value
+          }
+        });
       },
 
       _onSolutionBtnTap: function(evt) {
@@ -375,6 +392,8 @@ Example:
             this._onProgress(evt);
           } else if (evt.type == 'restorePresenter') {
             this._onRestorePresenter(evt);
+          } else if (evt.type == 'output') {
+            this._onReceiveResult(evt); // Show compilation and run results
           }
         }
       },
@@ -384,6 +403,23 @@ Example:
          this._submissions = q.answers;
         }.bind(this));
       },
+
+      /**
+        Response structure:
+        {
+          clientId: String,
+          passed: Boolean,
+          output: String,
+          errorMessage: String,
+          timeOut: Boolean
+        }
+       */
+      _onReceiveResult: function(evt) {
+        this._statusMessage = evt.data.passed ? 'Build successful' : 'Build failed';
+        this._outputMessage = evt.data.output;
+        this._errorMessage = evt.data.errorMessage;
+      },
+
       _onProgress: function (evt) {
         if (!evt.question || evt.question.uid !== this.uid)
           return;

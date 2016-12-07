@@ -69,20 +69,11 @@ Example:
     overflow-y: auto;
   }
 
-  table {
-    width:auto;
-    border:1px solid black;
-    border-collapse:collapse;
-    margin-bottom:10px;
-  }
-
-  th, #outputMsg{
+  #outputMsg{
+    padding-top: 20px;
     font-family: monospace;
   }
 
-  th, td {
-    border:1px solid #777;
-  }
   </style>
   <template>
     <div class="content-wrapper">
@@ -230,11 +221,11 @@ Example:
         this.value = evt.target.editorValue;
       },
 
+      /**
+       * When pressing the run button, send the data to the backend
+       * for compilation.
+       */
       _onExecuteBtnTap: function (evt) {
-        console.log("Executing code");
-        console.log(this.value);
-        console.log(this.eventBus);
-
         this.eventBus.emit('asq-plugin', {
           type: 'asq-java-q',
           data: {
@@ -268,14 +259,13 @@ Example:
       },
 
       _onQuestionType: function (evt) {
-        console.log('hi', evt);
         if (!evt || !evt.questionType)
           return;
         if (evt.questionType == 'asq-java-q') {
           if (evt.type == 'restoreViewer') {
             this._onRestoreViewer(evt);
           } else if (evt.type == 'output') {
-            this._onReceiveResult(evt);
+            this._onReceiveResult(evt); // Show compilation and run results
           }
         }
       },
@@ -288,7 +278,7 @@ Example:
       },
 
       /**
-        Response:
+        Response structure:
         {
           clientId: String,
           passed: Boolean,
@@ -298,15 +288,9 @@ Example:
         }
        */
       _onReceiveResult: function(evt) {
-        this._statusMessage = 'Finished running';
-
-        if (!evt.data.passed) {
-          this._errorMessage = evt.data.errorMessage;
-          this._outputMessage = '';
-        } else {
-          this._errorMessage = 'No error';
-          this._outputMessage = evt.data.output;
-        }
+        this._statusMessage = evt.data.passed ? 'Build successful' : 'Build failed';
+        this._outputMessage = evt.data.output;
+        this._errorMessage = evt.data.errorMessage;
       },
 
       _eventBusChanged: function (eventBus, old) {

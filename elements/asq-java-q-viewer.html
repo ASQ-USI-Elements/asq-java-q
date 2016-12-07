@@ -7,6 +7,7 @@
 <link rel="import" href="../../ace-element/ace-element.html">
 <link rel="import" href="../../iron-a11y-keys-behavior/iron-a11y-keys-behavior.html">
 <link rel="import" href="../../iron-icons/av-icons.html">
+<link rel="import" href="../../iron-ajax/iron-ajax.html">
 
 <!--
 `asq-java-q` is a Java question type.
@@ -81,6 +82,14 @@ Example:
 
   </style>
   <template>
+
+    <iron-ajax
+    auto
+    url="../../../files/Main.java"
+    handle-as="text"
+    on-response="_handleResponse"
+    debounce-duration="300"></iron-ajax>
+
     <div class="question-title">
       <content select="asq-stem"></content>
     </div>
@@ -216,14 +225,21 @@ Example:
           this.$.editor.editor.resize();
         }.bind(this), 1)
       },
+
       _valueChanged: function(newVal){
         if(this.value && this.$.editor.editorValue != this.value){
           this.$.editor.editorValue = this.value;
           this.$.editor.editor.clearSelection(1);
         }
       },
+
       _editorValueChanged: function(evt){
         this.value = evt.target.editorValue;
+      },
+
+      _handleResponse: function(evt){
+        console.log("File contents", evt.detail.response);
+        this.value = evt.detail.response;
       },
 
       /**

@@ -156,6 +156,7 @@ Example:
       font-family: monospace;
     }
   </style>
+
   <template>
     <div class="question-title">
       <content select="asq-stem"></content>
@@ -340,6 +341,7 @@ Example:
           reflectToAttribute: true,
         },
       },
+
       toggleSubmissionList: function(evt, detail){
         var current = this.$.submissionListWrapper.style.display;
         this.$.submissionListWrapper.style.display = (current == 'flex') ? 'none': 'flex';

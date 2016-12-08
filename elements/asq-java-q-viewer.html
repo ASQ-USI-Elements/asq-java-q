@@ -81,15 +81,8 @@ Example:
   }
 
   </style>
+
   <template>
-
-    <iron-ajax
-    auto
-    url="../../../files/Main.java"
-    handle-as="text"
-    on-response="_handleResponse"
-    debounce-duration="300"></iron-ajax>
-
     <div class="question-title">
       <content select="asq-stem"></content>
     </div>
@@ -214,8 +207,7 @@ Example:
           value: 'Output goes here.',
           notify: true,
           reflectToAttribute: true,
-        },
-
+        }
       },
 
       attached: function(){
@@ -235,11 +227,6 @@ Example:
 
       _editorValueChanged: function(evt){
         this.value = evt.target.editorValue;
-      },
-
-      _handleResponse: function(evt){
-        console.log("File contents", evt.detail.response);
-        this.value = evt.detail.response;
       },
 
       /**

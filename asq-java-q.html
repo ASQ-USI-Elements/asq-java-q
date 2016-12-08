@@ -27,7 +27,16 @@ Example:
       min-height: 200px;
     }
   </style>
+
   <template>
+
+    <iron-ajax
+    auto
+    url="../../files/{{filename}}"
+    handle-as="text"
+    on-response="_handleResponse"
+    debounce-duration="300"></iron-ajax>
+
     <template is="dom-if" if="{{hasRole(role, roles.VIEWER)}}" restamp="true">
       <asq-java-q-viewer
         uid="[[uid]]"
@@ -139,6 +148,15 @@ Example:
           notify: true,
           reflectToAttribute: true,
         },
+
+        filename: {
+          type: String,
+          value: '',
+          notify: true,
+          reflectToAttribute: true,
+        },
+
+
         _selectedSubmissionItem: {
           observer: '_selectedSubmissionItemChanged'
         },
@@ -226,7 +244,15 @@ Example:
 
       _valueChanged:function(newVal, oldVal){
         this.fire('questioninput', newVal)
-      }
+      },
+
+      /**
+       * Handles response from ajax request to read skeleton file(s)
+       */
+      _handleResponse: function(evt){
+        console.log("File contents", evt.detail.response);
+        this.value = evt.detail.response;
+      },
 
     });
   </script>

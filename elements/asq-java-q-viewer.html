@@ -8,6 +8,9 @@
 <link rel="import" href="../../iron-a11y-keys-behavior/iron-a11y-keys-behavior.html">
 <link rel="import" href="../../iron-icons/av-icons.html">
 <link rel="import" href="../../iron-ajax/iron-ajax.html">
+<link rel="import" href="../../iron-pages/iron-pages.html">
+<link rel="import" href="../../paper-tabs/paper-tabs.html">
+<link rel="import" href="../../paper-tab/paper-tab.html">
 
 <!--
 `asq-java-q` is a Java question type.
@@ -91,11 +94,22 @@ Example:
       <div id="main-container">
 
         <paper-toolbar>
-          <paper-icon-button id="executeBtn" icon="av:play-arrow" on-tap="_onExecuteBtnTap" title="Execute Query"></paper-icon-button>
+          <paper-icon-button id="executeBtn" icon="av:play-arrow" on-tap="_onExecuteBtnTap" title="Run"></paper-icon-button>
           <span id="statusMsg">{{_statusMessage}}</span>
         </paper-toolbar>
+
+        <paper-tabs selected="{{_selectedTab}}">
+          <paper-tab>TAB 1</paper-tab>
+          <paper-tab>TAB 2</paper-tab>
+          <paper-tab>TAB 3</paper-tab>
+        </paper-tabs>
+
         <div id="aceContainer" flex="">
-          <ace-element id="editor" theme="{{theme}}" mode="java" readonly="{{disabled}}" wrap="{{wrap}}" font-size="{{fontSize}}" tab-size="{{tabSize}}">[[value]]</ace-element>
+          <iron-pages selected="{{_selectedTab}}">
+            <ace-element id="editor" theme="{{theme}}" mode="java" readonly="{{disabled}}" wrap="{{wrap}}" font-size="{{fontSize}}" tab-size="{{tabSize}}">{{value}}</ace-element>
+            <ace-element id="editor2" theme="{{theme}}" mode="java" readonly="{{disabled}}" wrap="{{wrap}}" font-size="{{fontSize}}" tab-size="{{tabSize}}">{{value}}</ace-element>
+            <ace-element id="editor3" theme="{{theme}}" mode="java" readonly="{{disabled}}" wrap="{{wrap}}" font-size="{{fontSize}}" tab-size="{{tabSize}}">{{value}}</ace-element>
+          </iron-pages>
         </div>
 
         <div id="output">
@@ -207,7 +221,13 @@ Example:
           value: 'Output goes here.',
           notify: true,
           reflectToAttribute: true,
-        }
+        },
+        folderName: {
+          type: String,
+          value: '',
+          notify: true,
+          reflectToAttribute: true,
+        },
       },
 
       attached: function(){

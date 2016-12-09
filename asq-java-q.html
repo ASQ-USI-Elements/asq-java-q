@@ -30,8 +30,14 @@ Example:
 
   <template>
 
-    <iron-ajax
+    <iron-ajax id="jsonFile"
     auto
+    url="../..//files/files.json"
+    handle-as="json"
+    on-response="_onFilesJsonReceived"
+    debounce-duration="300"></iron-ajax>
+
+    <iron-ajax id="ajaxFiles"
     url="../..//files/{{filename}}"
     handle-as="text"
     on-response="_handleResponse"
@@ -252,6 +258,20 @@ Example:
       _handleResponse: function(evt){
         console.log("File contents", evt.detail.response);
         this.value = evt.detail.response;
+      },
+      /**
+       * Handles response from ajax request to read skeleton file(s)
+       */
+      _onFilesJsonReceived: function(evt){
+        const response = evt.detail.response;
+        console.log("Files", evt.detail.response);
+        let ajax = this.$.ajaxFiles;
+        // this.value = evt.detail.response;
+        response.files.forEach(function(file) {
+          console.log("Getting file", file);
+          this.set('filename', file);
+          ajax.generateRequest();
+        }, this);
       },
 
     });

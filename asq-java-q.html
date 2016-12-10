@@ -32,13 +32,13 @@ Example:
 
     <iron-ajax id="jsonFile"
     auto
-    url="../..//files/files.json"
+    url="../..//files/{{exerciseName}}/files.json"
     handle-as="json"
     on-response="_onFilesJsonReceived"
     debounce-duration="300"></iron-ajax>
 
     <iron-ajax id="ajaxFiles"
-    url="../..//files/{{filename}}"
+    url="../..//files/{{exerciseName}}/{{filename}}"
     handle-as="text"
     on-response="_handleResponse"
     debounce-duration="300"></iron-ajax>
@@ -186,7 +186,12 @@ Example:
           value: function() { return {}; },
         },
 
-
+        exerciseName: {
+          type: String,
+          value: '',
+          notify: true,
+          reflectToAttribute: true,
+        }
       },
 
       /**
@@ -288,7 +293,6 @@ Example:
         console.log("filedata", this.fileData);
 
         response.files.forEach(function(file) {
-          // this.push('files', file);
           console.log("Getting file", file);
           this.set('filename', file);
           ajax.generateRequest();

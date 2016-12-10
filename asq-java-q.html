@@ -43,8 +43,6 @@ Example:
     on-response="_handleResponse"
     debounce-duration="300"></iron-ajax>
 
-    [[fileData.main]]
-
     <template is="dom-if" if="{{hasRole(role, roles.VIEWER)}}" restamp="true">
       <asq-java-q-viewer
         uid="[[uid]]"

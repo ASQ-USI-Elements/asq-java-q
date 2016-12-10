@@ -107,7 +107,7 @@ Example:
         <div id="aceContainer" flex="">
           <iron-pages selected="{{_selectedTab}}">
             <template is="dom-repeat" items="{{fileData.files}}" as="file">
-              <ace-element id="editor" theme="{{theme}}" mode="java" readonly="{{disabled}}" wrap="{{wrap}}" font-size="{{fontSize}}" tab-size="{{tabSize}}">{{file.data}}</ace-element>
+              <ace-element id="{{_computeFileName(file.name)}}" theme="{{theme}}" mode="java" readonly="{{disabled}}" wrap="{{wrap}}" font-size="{{fontSize}}" tab-size="{{tabSize}}">{{file.data}}</ace-element>
             </template>
           </iron-pages>
         </div>
@@ -222,6 +222,8 @@ Example:
           notify: true,
           reflectToAttribute: true,
         },
+
+
         folderName: {
           type: String,
           value: '',
@@ -270,7 +272,12 @@ Example:
       },
 
       _editorValueChanged: function(evt){
+        console.log("changing");
         this.value = evt.target.editorValue;
+      },
+
+      _computeFileName: function(fileName) {
+        return fileName.split('.')[0];
       },
 
       /**
@@ -278,6 +285,17 @@ Example:
        * for compilation.
        */
       _onExecuteBtnTap: function (evt) {
+        console.log("editor contents:");
+
+        this.fileData.files.forEach(function(file) {
+          let name = file.name.split('.')[0];
+          console.log("filename: ", name);
+          console.log('val', this.$$('#'+name).editorValue);
+          file.data = this.$$('#'+name).editorValue;
+        }, this);
+
+        console.log(this.fileData);
+
         this.eventBus.emit('asq-plugin', {
           type: 'asq-java-q',
           data: {

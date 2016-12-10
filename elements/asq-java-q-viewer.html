@@ -229,6 +229,23 @@ Example:
           reflectToAttribute: true,
         },
 
+        /**
+         * Contains the files data
+         * Structure example:
+         * {
+         *    main: 'Main.java',
+         *    files: [
+         *      {
+         *        name: "class1.java",
+         *        data: "void hello(){}"
+         *      },
+         *      {
+         *        name: "Main.java",
+         *        data: "void main(String[] args){}"
+         *      }
+         *    ]
+         * }
+         */
         fileData: {
           type: Object,
           notify: true,
@@ -266,7 +283,7 @@ Example:
           data: {
             questionUid: this.uid,
             timestamp: new Date(),
-            submission: this.value
+            submission: this.fileData
           }
         });
       },
@@ -289,7 +306,7 @@ Example:
         return {
           questionUid: this.uid,
           timestamp: new Date(),
-          submission: submission,
+          submission: this.fileData,
         };
       },
 

@@ -128,33 +128,54 @@ describe("asqJavaqPlugin.js", function(){
     });
 
 
-    it("should find the stem if it exists", function(){
+    it("should find the stem if it exists", function(done){
       var $ = cheerio.load(this.simpleHtml);
       var el = $(this.tagName)[0];
       var elWithHtmlInStem = $(this.tagName)[1];
 
       var result = this.asqJavaq.processEl($, el);
-      expect(result.data.stem).to.equal("This is a stem");
+      result.then(function(result){
+        expect(result.data.stem).to.equal("This is a stem");
+      }.bind(this))
+      .catch(function(err){
+        done(err);
+      });
 
       var result = this.asqJavaq.processEl($, elWithHtmlInStem);
-      expect(result.data.stem).to.equal("This is a stem <em>with some HTML</em>");
-
+      result.then(function(result){
+        expect(result.data.stem).to.equal("This is a stem <em>with some HTML</em>");
+      }.bind(this))
+      .catch(function(err){
+        done(err);
+      });
 
       var $ = cheerio.load(this.noStemHtml);
       var el = $(this.tagName)[0];
       var result = this.asqJavaq.processEl($, el);
-      expect(result.data.stem).to.equal("");
+      result.then(function(result){
+        expect(result.data.stem).to.equal("");
+        done();
+      }.bind(this))
+      .catch(function(err){
+        done(err);
+      });
     });
 
-    it.skip("should return correct data", function(){
+    it("should return correct data", function(done){
       var $ = cheerio.load(this.simpleHtml);
       var el = $(this.tagName)[1];
 
       var result = this.asqJavaq.processEl($, el);
-      expect(result._id).to.equal("a-uid");
-      expect(result.type).to.equal(this.tagName);
-      expect(result.data.stem).to.equal("This is a stem <em>with some HTML</em>");
-      //expect(result.data.options).to.deep.equal([]);
+      result.then(function(result){
+        expect(result._id).to.equal("a-uid");
+        expect(result.type).to.equal(this.tagName);
+        expect(result.data.stem).to.equal("This is a stem <em>with some HTML</em>");
+
+        done();
+      }.bind(this))
+      .catch(function(err){
+        done(err);
+      });
     });
   });
 

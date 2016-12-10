@@ -15,19 +15,19 @@
 <body>
 
   <!-- You use the document as a place to set up your fixtures. -->
-  <asq-java-q id="m">
+  <asq-java-q id="viewer">
     <asq-stem><h3>An asq-java-q question where you can compile Java code.</h3></asq-stem>
   </asq-java-q>
 
   <script>
-    var m = document.querySelector('#m');
+    var viewer = document.querySelector('#viewer');
     suite('<asq-java-q>', function() {
 
       test('test default mixin values', function() {
-        assert.isTrue(m.isASQElement);
-        assert.isTrue(m.isASQQuestionTypeElement);
-        assert.equal(m.uid, '');
-        assert.equal(m.role, 'viewer');
+        assert.isTrue(viewer.isASQElement);
+        assert.isTrue(viewer.isASQQuestionTypeElement);
+        assert.equal(viewer.uid, '');
+        assert.equal(viewer.role, 'viewer');
       });
 
     });

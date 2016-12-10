@@ -69,7 +69,7 @@
           assert.equal(evt.type, 'asq-java-q');
           assert.equal(evt.data.questionUid, this.viewerEl.uid);
           assert.isBelow(new Date() - evt.data.timestamp, 1000);
-          assert.equal(evt.data.submission, this.viewerEl.value);
+          assert.equal(evt.data.submission, this.viewerEl.fileData);
         });
       });
 

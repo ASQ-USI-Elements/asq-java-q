@@ -409,6 +409,15 @@ Example:
         return fileName.split('.')[0];
       },
 
+      _refreshData: function() {
+        this.fileData.files.forEach(function(file) {
+          let name = file.name.split('.')[0];
+          console.log("filename: ", name);
+          console.log('val', this.$$('#'+name).editorValue);
+          file.data = this.$$('#'+name).editorValue;
+        }, this);
+      },
+
       /**
        * When pressing the run button, send the data to the backend
        * for compilation.
@@ -416,12 +425,7 @@ Example:
       _onExecuteBtnTap: function (evt) {
         console.log("editor contents:");
 
-        this.fileData.files.forEach(function(file) {
-          let name = file.name.split('.')[0];
-          console.log("filename: ", name);
-          console.log('val', this.$$('#'+name).editorValue);
-          file.data = this.$$('#'+name).editorValue;
-        }, this);
+        this._refreshData();
 
         console.log(this.fileData);
 

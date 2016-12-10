@@ -24,6 +24,7 @@ describe("asqJavaqPlugin.js", function(){
 
     this.asq = {
       registerHook: function(){},
+      registerEvent: function(){},
       db: {
         model: function(){
           return {
@@ -70,8 +71,10 @@ describe("asqJavaqPlugin.js", function(){
       })
     });
 
-    it.skip("should call `model().create()` to persist parsed questions in the db", function(done){
-      this.asqJavaq.parseHtml(this.simpleHtml)
+    it("should call `model().create()` to persist parsed questions in the db", function(done){
+      this.asqJavaq.parseHtml({
+        html: this.simpleHtml
+      })
       .then(function(result){
         this.create.calledOnce.should.equal(true);
         this.create.calledWith(["res", "res"]).should.equal(true);
@@ -82,10 +85,12 @@ describe("asqJavaqPlugin.js", function(){
       })
     });
 
-    it.skip("should resolve with the file's html", function(done){
-      this.asqJavaq.parseHtml(this.simpleHtml)
+    it("should resolve with the file's html", function(done){
+      this.asqJavaq.parseHtml({
+        html: this.simpleHtml
+      })
       .then(function(result){
-        expect(result).to.equal(this.simpleHtml);
+        expect(result.html).to.equal(this.simpleHtml);
         done();
       }.bind(this))
       .catch(function(err){
@@ -95,13 +100,15 @@ describe("asqJavaqPlugin.js", function(){
 
   });
 
-  describe.skip("processEl", function(){
+  describe("processEl", function(){
+
+    before(function(){
+     sinon.stub(this.asqJavaqPlugin.prototype, "parseSettings").returns(Promise.resolve({}));
+
+    });
 
     beforeEach(function(){
       this.asqJavaq = new this.asqJavaqPlugin(this.asq);
-    });
-
-    after(function(){
     });
 
     it("should assign a uid to the question if there's not one", function(){
@@ -139,7 +146,7 @@ describe("asqJavaqPlugin.js", function(){
       expect(result.data.stem).to.equal("");
     });
 
-    it("should return correct data", function(){
+    it.skip("should return correct data", function(){
       var $ = cheerio.load(this.simpleHtml);
       var el = $(this.tagName)[1];
 

@@ -43,6 +43,8 @@ Example:
     on-response="_handleResponse"
     debounce-duration="300"></iron-ajax>
 
+    [[fileData.main]]
+
     <template is="dom-if" if="{{hasRole(role, roles.VIEWER)}}" restamp="true">
       <asq-java-q-viewer
         uid="[[uid]]"
@@ -54,7 +56,8 @@ Example:
         disabled="{{disabled}}"
         value="{{value}}"
         wrap="{{wrap}}"
-        event-bus="[[eventBus]]">
+        event-bus="[[eventBus]]"
+        file-data={{fileData}}>
         <content></content>
       </asq-java-q-viewer>
     </template>
@@ -70,7 +73,8 @@ Example:
         disabled="{{disabled}}"
         value="{{value}}"
         wrap="{{wrap}}"
-        event-bus="[[eventBus]]">
+        event-bus="[[eventBus]]"
+        file-data={{fileData}}>
         <content></content>
       </asq-java-q-presenter>
     </template>
@@ -176,7 +180,16 @@ Example:
           type: Object,
           observer: "_eventBusChanged",
           notify: true
-        }
+        },
+
+        fileData: {
+          type: Object,
+          notify: true,
+          reflectToAttribute: true,
+          value: function() { return {}; },
+        },
+
+
       },
 
       /**
@@ -256,18 +269,29 @@ Example:
        * Handles response from ajax request to read skeleton file(s)
        */
       _handleResponse: function(evt){
-        console.log("File contents", evt.detail.response);
-        this.value = evt.detail.response;
+        console.log("File contents", evt);
+        // HACK: recover the filename, is there a better way to do it?
+        // Saving the name when calling the request doesn't work,
+        // since the responses will not be necessarly in order.
+        const url = evt.detail.url.split('/');
+        const name = url[url.length -1];
+        this.push('fileData.files',
+                  { name: name,
+                    data: evt.detail.response})
       },
+
       /**
        * Handles response from ajax request to read skeleton file(s)
        */
       _onFilesJsonReceived: function(evt){
         const response = evt.detail.response;
-        console.log("Files", evt.detail.response);
         let ajax = this.$.ajaxFiles;
-        // this.value = evt.detail.response;
+        this.set('fileData.main', response.main);
+        this.set('fileData.files', []);
+        console.log("filedata", this.fileData);
+
         response.files.forEach(function(file) {
+          // this.push('files', file);
           console.log("Getting file", file);
           this.set('filename', file);
           ajax.generateRequest();

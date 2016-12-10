@@ -99,16 +99,16 @@ Example:
         </paper-toolbar>
 
         <paper-tabs selected="{{_selectedTab}}">
-          <paper-tab>TAB 1</paper-tab>
-          <paper-tab>TAB 2</paper-tab>
-          <paper-tab>TAB 3</paper-tab>
+          <template is="dom-repeat" items="{{fileData.files}}" as="file">
+            <paper-tab>{{file.name}}</paper-tab>
+          </template>
         </paper-tabs>
 
         <div id="aceContainer" flex="">
           <iron-pages selected="{{_selectedTab}}">
-            <ace-element id="editor" theme="{{theme}}" mode="java" readonly="{{disabled}}" wrap="{{wrap}}" font-size="{{fontSize}}" tab-size="{{tabSize}}">{{value}}</ace-element>
-            <ace-element id="editor2" theme="{{theme}}" mode="java" readonly="{{disabled}}" wrap="{{wrap}}" font-size="{{fontSize}}" tab-size="{{tabSize}}">{{value}}</ace-element>
-            <ace-element id="editor3" theme="{{theme}}" mode="java" readonly="{{disabled}}" wrap="{{wrap}}" font-size="{{fontSize}}" tab-size="{{tabSize}}">{{value}}</ace-element>
+            <template is="dom-repeat" items="{{fileData.files}}" as="file">
+              <ace-element id="editor" theme="{{theme}}" mode="java" readonly="{{disabled}}" wrap="{{wrap}}" font-size="{{fontSize}}" tab-size="{{tabSize}}">{{file.data}}</ace-element>
+            </template>
           </iron-pages>
         </div>
 
@@ -228,6 +228,13 @@ Example:
           notify: true,
           reflectToAttribute: true,
         },
+
+        fileData: {
+          type: Object,
+          notify: true,
+          value: function() { return {}; },
+          observer: '_fileDataChanged',
+        },
       },
 
       attached: function(){
@@ -324,7 +331,12 @@ Example:
       _eventBusChanged: function (eventBus, old) {
         if(!eventBus) return;
         eventBus.on('asq:question_type', this._onQuestionType.bind(this));
-      }
+      },
+
+      _fileDataChanged: function(fileData, old) {
+        console.log("New fileData:", fileData);
+        // this.fileData = fileData;
+      },
     });
   </script>
 </dom-module>

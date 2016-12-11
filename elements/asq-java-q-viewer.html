@@ -61,7 +61,7 @@ Example:
   }
 
   #aceContainer{
-    @apply(--layout-flex);
+    @apply(--layout-flex-2);
     position:relative;
     @apply(--asq-java-q-aceContainer);
   }
@@ -69,8 +69,9 @@ Example:
   #output{
     @apply(--asq-java-q-output);
     @apply(--layout-flex);
-    padding-top: 20px;
-    overflow-y: auto;
+    padding: 20px;
+    overflow-y: scroll;
+    font-size: 0.5em;
   }
 
   #outputMsg{
@@ -81,6 +82,19 @@ Example:
   .question-title {
     font-size: 1.5em;
     padding: 20px;
+  }
+
+  paper-tabs, paper-toolbar {
+    background-color: var(--paper-grey-300);
+    color: black;
+  }
+
+  paper-tabs {
+    --paper-tabs-selection-bar-color : var(--paper-blue-300);
+    height: 40px;
+  }
+  paper-tab {
+    --paper-tab-ink: var(--paper-grey-500);
   }
 
   </style>
@@ -111,12 +125,10 @@ Example:
             </template>
           </iron-pages>
         </div>
-
         <div id="output">
           <div id="errorMsg">{{_errorMessage}}</div>
           <div id="outputMsg">{{_outputMessage}}</div>
         </div>
-
       </div>
     </div>
 
@@ -145,7 +157,7 @@ Example:
          */
         fontSize: {
           type: String,
-          value: "12px",
+          value: "14px",
           notify: true,
           reflectToAttribute: true
         },

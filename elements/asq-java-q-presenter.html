@@ -36,7 +36,7 @@ Example:
     min-width:100px;
     min-height: 300px;
     --paper-tabs-selection-bar-color: #333;
-    --paper-toolbar-background: #CFD8DC;
+    --paper-toolbar-background: #ddd;
     --paper-toolbar-color: #000;
   }
 
@@ -54,8 +54,9 @@ Example:
   #output{
     @apply(--asq-java-q-output);
     @apply(--layout-flex);
-    padding-top: 20px;
-    overflow-y: auto;
+    padding: 20px;
+    overflow-y: scroll;
+    font-size: 0.5em;
   }
 
   #le-content{
@@ -72,7 +73,7 @@ Example:
   #aceContainer{
     position:relative;
     min-height:150px;
-    @apply(--layout-flex);
+    @apply(--layout-flex-2);
     @apply(--asq-java-q-aceContainer);
   }
 
@@ -109,21 +110,6 @@ Example:
       padding: 20px;
     }
 
-    table {
-      width:auto;
-      border:1px solid black;
-      border-collapse:collapse;
-      margin-bottom:10px;
-    }
-
-    th{
-      font-family: monospace;
-    }
-
-    th, td {
-      border:1px solid #777;
-    }
-
 
     paper-icon-button{
       border-radius: 2px;
@@ -155,6 +141,19 @@ Example:
     #outputMsg{
       padding-top: 20px;
       font-family: monospace;
+    }
+
+    paper-tabs, paper-toolbar {
+      background-color: var(--paper-grey-300);
+      color: black;
+    }
+
+    paper-tabs {
+      --paper-tabs-selection-bar-color : var(--paper-blue-300);
+      height: 40px;
+    }
+    paper-tab {
+      --paper-tab-ink: var(--paper-grey-500);
     }
   </style>
 
@@ -267,7 +266,7 @@ Example:
          */
         fontSize: {
           type: String,
-          value: "12px",
+          value: "14px",
           notify: true,
           reflectToAttribute: true
         },
@@ -426,11 +425,8 @@ Example:
        * for compilation.
        */
       _onExecuteBtnTap: function (evt) {
-        console.log("editor contents:");
-
         this._refreshData();
-
-        console.log(this.fileData);
+        this._statusMessage = "Running";
 
         this.eventBus.emit('asq-plugin', {
           type: 'asq-java-q',

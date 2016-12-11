@@ -455,7 +455,7 @@ Example:
       },
       _selectedSubmissionItemChanged: function(newItem, old){
         if(! newItem) return;
-        this.set('fileData.files', newItem.files);
+        this.set('fileData.files', newItem.submission.submission.files);
       },
       _onQuestionType: function (evt) {
         if (!evt || !evt.questionType)

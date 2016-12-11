@@ -16,6 +16,6 @@ addons:
     packages:
     - google-chrome-stable
 script:
-- xvfb-run wct test/element && npm run test:server
-- if [ "${TRAVIS_PULL_REQUEST}" = "false" ]; then wct test/element -s 'default'; fi
+- xvfb-run wct --skip-plugin sauce --plugin local test/element && npm run test:server
+- if [ "${TRAVIS_PULL_REQUEST}" = "false" ]; then wct test/element --skip-plugin local --plugin sauce; fi
 dist: trusty

@@ -1,0 +1,72 @@
+{
+    "verbose": false,
+    "plugins": {
+        "local": {
+            "browsers": ["chrome", "firefox"]
+        },
+        "sauce": {
+            "disabled": true,
+            "browsers": [{
+                "browserName": "MicrosoftEdge",
+                "platform": "Windows 10",
+                "version": "14"
+            }, {
+                 "browserName": "chrome",
+                 "platform": "Windows 10",
+                 "version": "54.0"
+            }, {
+                 "browserName": "chrome",
+                 "platform": "Windows 10",
+                 "version": "53.0"
+            }, {
+                 "browserName": "chrome",
+                 "platform": "Windows 10",
+                 "version": "beta"
+            }, {
+                "browserName": "firefox",
+                 "platform": "Windows 10",
+                 "version": "50.0"
+            }, {
+                 "browserName": "firefox",
+                 "platform": "Windows 10",
+                 "version": "49.0"
+            }, {
+                 "browserName": "chrome",
+                 "platform": "OS X 10.11",
+                 "version": "54.0"
+            }, {
+                 "browserName": "chrome",
+                 "platform": "OS X 10.11",
+                 "version": "53.0"
+            }, {
+                 "browserName": "chrome",
+                 "platform": "OS X 10.11",
+                 "version": "beta"
+            }, {
+                 "browserName": "chrome",
+                 "platform": "OS X 10.11",
+                 "version": "dev"
+            }, {
+                 "browserName": "firefox",
+                 "platform": "OS X 10.11",
+                 "version": "50.0"
+            }, {
+                 "browserName": "firefox",
+                 "platform": "OS X 10.11",
+                 "version": "49.0"
+            }, {
+                 "browserName": "firefox",
+                 "platform": "OS X 10.11",
+                 "version": "beta"
+            }, {
+                 "browserName": "safari",
+                 "platform": "OS X 10.11",
+                 "version": "10"
+             },{
+                "browserName": "safari",
+                "platform": "OS X 10.11",
+                "version": "9"
+            }]
+        }
+    }
+}

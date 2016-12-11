@@ -3,6 +3,14 @@
 <link rel="import" href="../../iron-list/iron-list.html">
 <link rel="import" href="../../iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../../ace-element/ace-element.html">
+<link rel="import" href="../../paper-toolbar/paper-toolbar.html">
+<link rel="import" href="../../paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../iron-icons/av-icons.html">
+<link rel="import" href="../../iron-icons/iron-icons.html">
+<link rel="import" href="../../paper-item/paper-item.html">
+<link rel="import" href="../../paper-tabs/paper-tab.html">
+<link rel="import" href="../../paper-tabs/paper-tabs.html">
+<link rel="import" href="../../paper-styles/color.html">
 
 <!--
 `asq-java-q` is a Java question type.
@@ -24,68 +32,162 @@ Example:
   :host{
     @apply(--layout-vertical);
     @apply(--layout-flex);
-    --paper-tabs-selection-bar-color: #333;
-    position: relative;
     min-width:100px;
     min-height: 300px;
+    --paper-tabs-selection-bar-color: #333;
+    --paper-toolbar-background: #CFD8DC;
+    --paper-toolbar-color: #000;
   }
-  #le-content{
-    @apply(--layout-horizontal);
+
+  #statusMsg{
+     padding:0 0.4em;
+     @apply(--layout-flex);
+  }
+
+  #errorMsg{
+    @apply(--asq-java-q-error-message);
+    color: red;
+    font-family: monospace;
+  }
+
+  #output{
+    @apply(--asq-java-q-output);
     @apply(--layout-flex);
-    @apply(--asq-code-q-content);
+    padding-top: 20px;
+    overflow-y: auto;
   }
+
+  #le-content{
+   @apply(--layout-horizontal);
+   @apply(--layout-flex);
+   @apply(--asq-java-q-content);
+  }
+
+  #main-container{
+    @apply(--layout-flex-3);
+    @apply(--layout-vertical);
+  }
+
   #aceContainer{
     position:relative;
     min-height:150px;
-    @apply(--layout-flex-3);
-    @apply(--asq-code-q-aceContainer);
+    @apply(--layout-flex);
+    @apply(--asq-java-q-aceContainer);
   }
+
   #list-container{
     @apply(--layout-flex);
     @apply(--layout-vertical);
-  }
+   }
+
   #submissionListWrapper{
     @apply(--layout-flex);
     display: none;
   }
-  #submissionList {
-    @apply(--layout-flex);
-  }
-  #submissionList paper-item{
-    overflow:hidden;
-    padding: 12px 5px 0;
-    background-color: white;
-    cursor: pointer;
-    font-family: Menlo,Monaco,Consolas,"Courier New",monospace;
-    @apply(--shadow-elevation-2dp);
-    outline:none;
-  }
-  #submissionList paper-item[focused]{
-    background-color: var(--google-grey-300);
-  }
+
+   #submissionList {
+     @apply(--layout-flex);
+   }
+
+   #submissionList paper-item{
+     overflow:hidden;
+     padding: 12px 5px 0;
+     background-color: white;
+     cursor: pointer;
+     font-family: Menlo,Monaco,Consolas,"Courier New",monospace;
+     @apply(--shadow-elevation-2dp);
+     outline:none;
+   }
+
+    #submissionList paper-item[focused]{
+      background-color: var(--google-grey-300);
+    }
+
+    .question-title {
+      font-size: 1.5em;
+      padding: 20px;
+    }
+
+    table {
+      width:auto;
+      border:1px solid black;
+      border-collapse:collapse;
+      margin-bottom:10px;
+    }
+
+    th{
+      font-family: monospace;
+    }
+
+    th, td {
+      border:1px solid #777;
+    }
+
+
+    paper-icon-button{
+      border-radius: 2px;
+      margin: 2px;
+    }
+
+    paper-icon-button.outline {
+      box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
+    }
+
+    paper-icon-button:hover:not([disabled]) {
+      box-shadow: 0 1px 0 0 rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.1);
+    }
+
+    paper-icon-button.selected:not([disabled]) {
+      background-color: rgba(0, 0, 0, 0.05);
+      box-shadow: inset 0 1px 0 0 rgba(0, 0, 0, 0.05), 0 0 0 1px rgba(0, 0, 0, 0.12);
+    }
+
+    paper-icon-button:active:not([disabled]), paper-icon-button.selected:active:not([disabled]) {
+      background-color: rgba(0, 0, 0, 0.05);
+      box-shadow: inset 0 1px 0 0 rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(0, 0, 0, 0.12);
+    }
+
+    #solutionBtn{
+      margin-left: 14px;
+    }
+
+    #outputMsg{
+      padding-top: 20px;
+      font-family: monospace;
+    }
   </style>
   <template>
-    <div class="content-wrapper">
+    <div class="question-title">
       <content select="asq-stem"></content>
     </div>
 
     <div id="le-content">
-      <div id="aceContainer">
-        <ace-element id="editor" theme="{{theme}}" mode="{{mode}}" readonly="{{disabled}}" wrap="{{wrap}}" font-size="{{fontSize}}" tabsize="{{tabSize}}">{{value}}</ace-element>
+      <div id="main-container">
+        <paper-toolbar>
+          <paper-icon-button id="executeBtn" icon="av:play-arrow" on-tap="_onExecuteBtnTap" title="Execute Query"></paper-icon-button>
+          <span id="statusMsg">{{_statusMessage}}</span>
+          <paper-icon-button id="solutionBtn" icon="done-all" on-tap="_onSolutionBtnTap" title="Show Solution"></paper-icon-button>
+        </paper-toolbar>
+        <div id="aceContainer">
+          <ace-element id="editor" theme="{{theme}}" mode="{{mode}}" readonly="{{disabled}}" wrap="{{wrap}}" font-size="{{fontSize}}" tabsize="{{tabSize}}">{{value}}</ace-element>
+        </div>
+        <div id="output">
+          <div id="errorMsg">{{_errorMessage}}</div>
+          <div id="outputMsg">{{_outputMessage}}</div>
+        </div>
       </div>
 
       <div id="list-container">
         <paper-tabs selected="0" selected-attribute="active" noink role="tablist">
           <paper-tab on-click="toggleSubmissionList" role="tab">Submissions</paper-tab>
         </paper-tabs>
-          <div id="submissionListWrapper">
-            <iron-list id="submissionList" items="[[_submissions]]" as="submission" selection-enabled selected-item="{{_selectedSubmissionItem}}">
-              <template>
-                <paper-item>#<span>[[indexPlusOne(index)]]</span>&nbsp;&nbsp;<span>[[submission.submission]]</span>
-                </paper-item>
-              </template>
-            </iron-list>
-          </div>
+        <div id="submissionListWrapper">
+          <iron-list id="submissionList" items="[[_submissions]]" as="submission" selection-enabled selected-item="{{_selectedSubmissionItem}}">
+            <template>
+              <paper-item>#<span>[[indexPlusOne(index)]]</span>&nbsp;&nbsp;<span>[[submission.submission]]</span></paper-item>
+            </template>
+          </iron-list>
+        </div>
       </div>
     </div>
   </template>
@@ -127,6 +229,10 @@ Example:
 
     Polymer({
       is: 'asq-java-q-presenter',
+
+      behaviors: [
+        ASQ.asqQuestionElementBehavior
+      ],
 
       properties: {
         _answers: {
@@ -212,7 +318,26 @@ Example:
           type: Object,
           observer: "_eventBusChanged",
           notify: true
-        }
+        },
+
+        _statusMessage: {
+          type: String,
+          value: 'Press the button to run.',
+          notify: true,
+          reflectToAttribute: true,
+        },
+        _errorMessage: {
+          type: String,
+          value: 'Error goes here.',
+          notify: true,
+          reflectToAttribute: true,
+        },
+        _outputMessage: {
+          type: String,
+          value: 'Output goes here.',
+          notify: true,
+          reflectToAttribute: true,
+        },
       },
       toggleSubmissionList: function(evt, detail){
         var current = this.$.submissionListWrapper.style.display;
@@ -235,6 +360,27 @@ Example:
           this.$.editor.editor.clearSelection(1);
         }
       },
+
+      /**
+       * When pressing the run button, send the data to the backend
+       * for compilation.
+       */
+      _onExecuteBtnTap: function (evt) {
+        this.eventBus.emit('asq-plugin', {
+          type: 'asq-java-q',
+          data: {
+            questionUid: this.uid,
+            timestamp: new Date(),
+            submission: this.value
+          }
+        });
+      },
+
+      _onSolutionBtnTap: function(evt) {
+        //TODO
+        console.log("Toggling solution");
+      },
+
       _editorValueChanged: function(evt){
         this.value = evt.target.editorValue;
       },
@@ -245,11 +391,13 @@ Example:
       _onQuestionType: function (evt) {
         if (!evt || !evt.questionType)
           return;
-        if (evt.questionType == 'asq-code-q') {
+        if (evt.questionType == 'asq-java-q') {
           if (evt.type == 'progress') {
             this._onProgress(evt);
           } else if (evt.type == 'restorePresenter') {
             this._onRestorePresenter(evt);
+          } else if (evt.type == 'output') {
+            this._onReceiveResult(evt); // Show compilation and run results
           }
         }
       },
@@ -259,6 +407,23 @@ Example:
          this._submissions = q.answers;
         }.bind(this));
       },
+
+      /**
+        Response structure:
+        {
+          clientId: String,
+          passed: Boolean,
+          output: String,
+          errorMessage: String,
+          timeOut: Boolean
+        }
+       */
+      _onReceiveResult: function(evt) {
+        this._statusMessage = evt.data.passed ? 'Build successful' : 'Build failed';
+        this._outputMessage = evt.data.output;
+        this._errorMessage = evt.data.errorMessage;
+      },
+
       _onProgress: function (evt) {
         if (!evt.question || evt.question.uid !== this.uid)
           return;

@@ -2,8 +2,11 @@
 <link rel="import" href="../../asq-base/asq-base.html">
 <link rel="import" href="../../iron-list/iron-list.html">
 <link rel="import" href="../../iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../paper-toolbar/paper-toolbar.html">
+<link rel="import" href="../../paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../ace-element/ace-element.html">
 <link rel="import" href="../../iron-a11y-keys-behavior/iron-a11y-keys-behavior.html">
+<link rel="import" href="../../iron-icons/av-icons.html">
 
 <!--
 `asq-java-q` is a Java question type.
@@ -22,30 +25,93 @@ Example:
 -->
 <dom-module id="asq-java-q-viewer">
   <style>
-    :host[disabled]{
-      opacity:0.65;
-    }
-    :host{
-      @apply(--layout-vertical);
-      @apply(--layout-flex);
-      position: relative;
-      min-width:100px;
-      min-height: 300px;
-    }
-    #aceContainer{
-      @apply(--layout-flex);
-      position:relative;
-    }
+  :host{
+    @apply(--layout-vertical);
+    @apply(--layout-flex);
+    min-width:100px;
+    min-height: 300px;
+    --paper-toolbar-background: #CFD8DC;
+    --paper-toolbar-color: #000;
+  }
+
+  #statusMsg{
+     padding:0 0.4em;
+     @apply(--layout-flex);
+  }
+
+  #errorMsg{
+    @apply(--asq-java-q-error-message);
+    color: red;
+    font-family: monospace;
+  }
+
+  #le-content{
+   @apply(--layout-horizontal);
+   @apply(--layout-flex);
+   @apply(--asq-java-q-content);
+  }
+
+  #main-container{
+    @apply(--layout-flex);
+    @apply(--layout-vertical);
+  }
+
+  #aceContainer{
+    @apply(--layout-flex);
+    position:relative;
+    @apply(--asq-java-q-aceContainer);
+  }
+
+  #output{
+    @apply(--asq-java-q-output);
+    @apply(--layout-flex);
+    padding-top: 20px;
+    overflow-y: auto;
+  }
+
+  #outputMsg{
+    padding-top: 20px;
+    font-family: monospace;
+  }
+
+  .question-title {
+    font-size: 1.5em;
+    padding: 20px;
+  }
+
   </style>
   <template>
-    <div id="leContent"><content select="asq-stem"></content></div>
-    <div id="aceContainer" flex="">
-      <ace-element id="editor" theme="{{theme}}" mode="{{mode}}" readonly="{{disabled}}" wrap="{{wrap}}" font-size="{{fontSize}}" tab-size="{{tabSize}}">[[value]]</ace-element>
+    <div class="question-title">
+      <content select="asq-stem"></content>
     </div>
+
+    <div id="le-content">
+      <div id="main-container">
+
+        <paper-toolbar>
+          <paper-icon-button id="executeBtn" icon="av:play-arrow" on-tap="_onExecuteBtnTap" title="Execute Query"></paper-icon-button>
+          <span id="statusMsg">{{_statusMessage}}</span>
+        </paper-toolbar>
+        <div id="aceContainer" flex="">
+          <ace-element id="editor" theme="{{theme}}" mode="java" readonly="{{disabled}}" wrap="{{wrap}}" font-size="{{fontSize}}" tab-size="{{tabSize}}">[[value]]</ace-element>
+        </div>
+
+        <div id="output">
+          <div id="errorMsg">{{_errorMessage}}</div>
+          <div id="outputMsg">{{_outputMessage}}</div>
+        </div>
+
+      </div>
+    </div>
+
   </template>
   <script>
     Polymer({
       is: 'asq-java-q-viewer',
+
+      behaviors: [
+        ASQ.asqQuestionElementBehavior
+      ],
 
       properties: {
         /**
@@ -120,25 +186,29 @@ Example:
           type: Object,
           observer: "_eventBusChanged",
           notify: true
-        }
+        },
+
+        _statusMessage: {
+          type: String,
+          value: 'Press the button to run.',
+          notify: true,
+          reflectToAttribute: true,
+        },
+        _errorMessage: {
+          type: String,
+          value: 'Error goes here.',
+          notify: true,
+          reflectToAttribute: true,
+        },
+        _outputMessage: {
+          type: String,
+          value: 'Output goes here.',
+          notify: true,
+          reflectToAttribute: true,
+        },
+
       },
-      /**
-       * The `submit` method returns an object that respresents the submission of this question. The object has the following structure:
-           {
-              questionUid: this.uid,
-              timestamp: new Date(),
-              submission: []
-           }
-       * Only enabled when the `role` of the element is <b>viewer</b>.
-       *
-       * @method submit
-       */
-      // submit: function () {
-      //   var submission = this.$.editor.editor.session.getValue();
-      //   return {
-      //     submission: submission
-      //   };
-      // },
+
       attached: function(){
         //delay to make sure ace-editors are initialized
         setTimeout(function(){
@@ -155,6 +225,22 @@ Example:
       _editorValueChanged: function(evt){
         this.value = evt.target.editorValue;
       },
+
+      /**
+       * When pressing the run button, send the data to the backend
+       * for compilation.
+       */
+      _onExecuteBtnTap: function (evt) {
+        this.eventBus.emit('asq-plugin', {
+          type: 'asq-java-q',
+          data: {
+            questionUid: this.uid,
+            timestamp: new Date(),
+            submission: this.value
+          }
+        });
+      },
+
       /**
        * The `submit` method returns an object that respresents the submission of this question. The object has the following structure:
            {
@@ -166,32 +252,25 @@ Example:
        *
        * @method submit
        */
-      submit: function () {
-        if (!this.value) {
-          this.value = '';
-        }
-        submission = this.value;
+      submit: function (evt) {
+        this._statusMessage = "Running";
+
+        let submission = this.value;
         return {
           questionUid: this.uid,
           timestamp: new Date(),
-          submission: submission
+          submission: submission,
         };
       },
-      // ready: function () {
-      //   if (!this.value) {
-      //     var code = Polymer.dom(this).querySelector('code');
-      //     if (code) {
-      //       //this.value = code.textContent;
-      //       //console.log(code.textContent)
-      //     }
-      //   }
-      // }
+
       _onQuestionType: function (evt) {
         if (!evt || !evt.questionType)
           return;
-        if (evt.questionType == 'asq-code-q') {
+        if (evt.questionType == 'asq-java-q') {
           if (evt.type == 'restoreViewer') {
             this._onRestoreViewer(evt);
+          } else if (evt.type == 'output') {
+            this._onReceiveResult(evt); // Show compilation and run results
           }
         }
       },
@@ -202,6 +281,23 @@ Example:
          this.value = q.submission;
         }.bind(this));
       },
+
+      /**
+        Response structure:
+        {
+          clientId: String,
+          passed: Boolean,
+          output: String,
+          errorMessage: String,
+          timeOut: Boolean
+        }
+       */
+      _onReceiveResult: function(evt) {
+        this._statusMessage = evt.data.passed ? 'Build successful' : 'Build failed';
+        this._outputMessage = evt.data.output;
+        this._errorMessage = evt.data.errorMessage;
+      },
+
       _eventBusChanged: function (eventBus, old) {
         if(!eventBus) return;
         eventBus.on('asq:question_type', this._onQuestionType.bind(this));

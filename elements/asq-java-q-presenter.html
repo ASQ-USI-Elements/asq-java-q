@@ -181,6 +181,7 @@ Example:
             <template is="dom-repeat" items="{{fileData.files}}" as="file">
               <ace-element id="{{_computeFileName(file.name)}}" theme="{{theme}}" mode="java" readonly="{{disabled}}" wrap="{{wrap}}" font-size="{{fontSize}}" tab-size="{{tabSize}}">{{file.data}}</ace-element>
             </template>
+          </iron-pages>
         </div>
         <div id="output">
           <div id="errorMsg">{{_errorMessage}}</div>
@@ -203,40 +204,6 @@ Example:
     </div>
   </template>
   <script>
-  function getBaseLog(x, y) {
-    return Math.log(y) / Math.log(x);
-  }
-
-    function tWrap(text, width) {
-      text.each(function() {
-        var text = d3.select(this),
-            words = text.text().trim().split(/\s+/).reverse(),
-            word,
-            line = [],
-            lineNumber = 0,
-            lineHeight = 1.1, // ems
-            y = text.attr("y")  || 0,
-            dy = parseFloat(text.attr("dy")) || 0,
-            tspan = text.text(null).append("tspan")
-              .attr("x", 0)
-              .attr("y", y)
-              .attr("dy", dy + "em");
-        while (word = words.pop()) {
-          line.push(word);
-          tspan.text(line.join(" "));
-          if (tspan.node().getComputedTextLength() > width) {
-            line.pop();
-            tspan.text(line.join(" "));
-            line = [word];
-            tspan = text.append("tspan").attr("x", 0).attr("y", y).attr("dy", ++lineNumber * lineHeight + dy + "em").text(word);
-          }
-          // align center
-          var w = tspan.node().getComputedTextLength();
-          var tspanX = (parseFloat(width) / 2) - (w / 2);
-          tspan.attr("x", tspanX)
-        }
-      });
-    }
 
     Polymer({
       is: 'asq-java-q-presenter',

@@ -1,0 +1,149 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="asq" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+  <title>asq-java-q</title>
+
+  <script src="../../../webcomponentsjs/webcomponents.min.js"></script>
+  <script src="../../../web-component-tester/browser.js"></script>
+
+  <!-- Step 1: import the element to test -->
+  <link rel="import" href="../../asq-java-q.html">
+  <link rel="import" href="../../../asq-base/asq-base.html">
+</head>
+<body>
+
+  <!-- You use the document as a place to set up your fixtures. -->
+  <asq-java-q>
+    <asq-stem><h3>An asq-java-q question where you can compile Java code.</h3></asq-stem>
+  </asq-java-q>
+
+  <test-fixture id="presenterElementFixture">
+    <template>
+      <asq-java-q-presenter id="presenter" uid="test-uid">
+
+      </asq-java-q-presenter>
+    </template>
+  </test-fixture>
+
+  <script>
+    suite('<asq-java-q-presenter>', function() {
+      setup(function() {
+        this.presenterEl = fixture('presenterElementFixture');
+      });
+
+      suite('Execute Button', function() {
+
+        setup(function() {
+          sinon.stub(this.presenterEl, "_onExecuteBtnTap");
+        });
+
+        teardown(function() {
+          this.presenterEl._onExecuteBtnTap.restore();
+        });
+
+        test('test execute button', function() {
+          this.presenterEl.$.executeBtn.click();
+          assert.equal(this.presenterEl._onExecuteBtnTap.calledOnce, true);
+        });
+      });
+
+      suite('_onExecuteBtnTap()', function() {
+
+        setup(function() {
+          this.presenterEl.eventBus = {
+            emit: sinon.stub(),
+            on: sinon.stub()
+          };
+        });
+
+        test('test execute button', function() {
+          this.presenterEl.value = "test-value";
+          this.presenterEl._onExecuteBtnTap();
+          assert.equal(this.presenterEl.eventBus.emit.calledOnce, true);
+          const firstCallArgs = this.presenterEl.eventBus.emit.args[0];
+          assert.equal(firstCallArgs[0], 'asq-plugin')
+          const evt = firstCallArgs[1];
+          assert.equal(evt.type, 'asq-java-q');
+          assert.equal(evt.data.questionUid, this.presenterEl.uid);
+          assert.isBelow(new Date() - evt.data.timestamp, 1000);
+          assert.equal(evt.data.submission, this.presenterEl.value);
+        });
+      });
+
+      suite('_onReceiveResult()', function() {
+
+        setup(function() {
+
+        });
+
+        test('test successful build', function() {
+          this.presenterEl.value = "test-value";
+          const evt = {
+            'data': {
+              'passed' : true,
+              'output' : 'Hello World',
+              'errorMessage' : ''
+          }};
+          this.presenterEl._onReceiveResult(evt);
+          assert.equal(this.presenterEl._statusMessage, 'Build successful');
+          assert.equal(this.presenterEl._outputMessage, evt.data.output);
+          assert.equal(this.presenterEl._errorMessage, evt.data.errorMessage);
+          assert.equal(this.presenterEl.$.statusMsg.textContent, 'Build successful');
+          assert.equal(this.presenterEl.$.outputMsg.textContent, evt.data.output);
+          assert.equal(this.presenterEl.$.errorMsg.innerHTML, evt.data.errorMessage);
+        });
+
+        test('test failed build', function() {
+          this.presenterEl.value = "test-value";
+          const evt = {
+            'data': {
+              'passed' : false,
+              'output' : 'Hello World',
+              'errorMessage' : 'Error'
+          }};
+          this.presenterEl._onReceiveResult(evt);
+          assert.equal(this.presenterEl._statusMessage, 'Build failed');
+          assert.equal(this.presenterEl._outputMessage, evt.data.output);
+          assert.equal(this.presenterEl._errorMessage, evt.data.errorMessage);
+          assert.equal(this.presenterEl.$.statusMsg.textContent, 'Build failed');
+          assert.equal(this.presenterEl.$.outputMsg.textContent, evt.data.output);
+          assert.equal(this.presenterEl.$.errorMsg.innerHTML, evt.data.errorMessage);
+        });
+      });
+
+      suite('_onRestorePresenter()', function() {
+
+        test('test submission list', function() {
+          this.presenterEl.uid = "test-uid";
+          const evt = {
+            'questions': [{
+              'uid' : 'test-uid',
+              'answers' : [{'submission': 'Answer1'}, {'submission': 'Answer2'}]
+          }]};
+          this.presenterEl._onRestorePresenter(evt);
+          this.presenterEl._submissions.forEach(function(a, i) {
+            assert.equal(evt.questions[0].answers[i], a);
+          });
+        });
+      });
+
+      suite('_selectedSubmissionItemChanged()', function() {
+
+        test('test submission selection', function(done) {
+
+          this.presenterEl._submissions = [{'submission': 'Answer1'}, {'submission': 'Answer2'}]
+          this.presenterEl._selectedSubmissionItemChanged(this.presenterEl._submissions[1]);
+
+          flush(() => {
+            assert.equal(this.presenterEl.value, 'Answer2');
+            done()
+          });
+        });
+      });
+    });
+  </script>
+
+</body>
+</html>

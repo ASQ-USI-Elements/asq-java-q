@@ -197,7 +197,10 @@ Example:
         },
 
         _selectedTab:{
-          notify: true
+          type: Number,
+          notify: true,
+          value: 0,
+          reflectToAttribute: true
         },
 
         /**
@@ -289,8 +292,6 @@ Example:
       _refreshData: function() {
         this.fileData.files.forEach(function(file) {
           let name = file.name.split('.')[0];
-          console.log("filename: ", name);
-          console.log('val', this.$$('#'+name).editorValue);
           file.data = this.$$('#'+name).editorValue;
         }, this);
       },
@@ -300,11 +301,8 @@ Example:
        * for compilation.
        */
       _onExecuteBtnTap: function (evt) {
-        console.log("editor contents:");
-
         this._refreshData();
-
-        console.log(this.fileData);
+        this._statusMessage = "Running";
 
         this.eventBus.emit('asq-plugin', {
           type: 'asq-java-q',
@@ -370,7 +368,7 @@ Example:
        */
       _onReceiveResult: function(evt) {
         // Only accept when it's the correct slide
-        if (evt.data.uid != this.uid)
+        if (evt.data.questionUid != this.uid)
           return;
         this._statusMessage = evt.data.passed ? 'Build successful' : 'Build failed';
         this._outputMessage = evt.data.output;

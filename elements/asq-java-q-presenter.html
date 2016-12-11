@@ -321,7 +321,10 @@ Example:
           observer: '_selectedSubmissionItemChanged'
         },
         _selectedTab:{
-          notify: true
+          type: Number,
+          notify: true,
+          value: 0,
+          reflectToAttribute: true,
         },
         /**
          * Event bus to communicate with ASQ
@@ -482,6 +485,10 @@ Example:
         }
        */
       _onReceiveResult: function(evt) {
+
+        if (evt.data.questionUid != this.uid)
+          return;
+
         this._statusMessage = evt.data.passed ? 'Build successful' : 'Build failed';
         this._outputMessage = evt.data.output;
         this._errorMessage = evt.data.errorMessage;

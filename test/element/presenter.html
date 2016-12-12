@@ -56,6 +56,7 @@
             emit: sinon.stub(),
             on: sinon.stub()
           };
+          this.presenterEl.fileData.files = [];
         });
 
         test('test execute button', function() {
@@ -68,7 +69,7 @@
           assert.equal(evt.type, 'asq-java-q');
           assert.equal(evt.data.questionUid, this.presenterEl.uid);
           assert.isBelow(new Date() - evt.data.timestamp, 1000);
-          assert.equal(evt.data.submission, this.presenterEl.value);
+          assert.deepEqual(evt.data.submission.files, []);
         });
       });
 
@@ -133,8 +134,8 @@
 
         test('test submission selection', function(done) {
 
-          this.presenterEl._submissions = [{'submission': 'Answer1'}, {'submission': 'Answer2'}]
-          this.presenterEl._selectedSubmissionItemChanged(this.presenterEl._submissions[1]);
+          this.presenterEl._submissions = [{'submission': { 'files': ['Main.java']}}]
+          this.presenterEl._selectedSubmissionItemChanged(this.presenterEl._submissions[0]);
 
           flush(() => {
             assert.equal(this.presenterEl.value, 'Answer2');

@@ -316,7 +316,6 @@ Example:
           value: '',
           notify: true,
           reflectToAttribute: true,
-          observer: '_valueChanged'
         },
         /**
          * The wrap property of the ace-element.
@@ -417,14 +416,9 @@ Example:
           });
         }.bind(this), 1)
       },
+
       indexPlusOne: function(index){
         return ++index;
-      },
-      _valueChanged: function(newVal){
-        if(this.value && this.$.editor.editorValue != this.value){
-          this.$.editor.editorValue = this.value;
-          this.$.editor.editor.clearSelection(1);
-        }
       },
 
       _computeFileName: function(fileName) {

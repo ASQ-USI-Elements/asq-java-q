@@ -15,19 +15,28 @@
 <body>
 
   <!-- You use the document as a place to set up your fixtures. -->
-  <asq-java-q id="viewer">
-    <asq-stem><h3>An asq-java-q question where you can compile Java code.</h3></asq-stem>
-  </asq-java-q>
+  <test-fixture id="elementFixture">
+    <template>
+      <asq-java-q-viewer id="viewer" uid="test-uid">
+      </asq-java-q-viewer>
+    </template>
+  </test-fixture>
 
   <script>
-    var viewer = document.querySelector('#viewer');
     suite('<asq-java-q>', function() {
 
+      setup(function() {
+        this.viewer = fixture('elementFixture');
+        this.viewer.eventBus = {
+          emit: sinon.stub(),
+          on: sinon.stub()
+        };
+      });
+
       test('test default mixin values', function() {
-        assert.isTrue(viewer.isASQElement);
-        assert.isTrue(viewer.isASQQuestionTypeElement);
-        assert.equal(viewer.uid, '');
-        assert.equal(viewer.role, 'viewer');
+        assert.isTrue(this.viewer.isASQElement);
+        assert.isTrue(this.viewer.isASQQuestionTypeElement);
+        assert.equal(this.viewer.role, 'viewer');
       });
 
     });

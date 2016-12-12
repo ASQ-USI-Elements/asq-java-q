@@ -30,7 +30,7 @@ Example:
 
   <template>
 
-    <iron-ajax id="jsonFile"
+    <!-- <iron-ajax id="jsonFile"
     auto
     url="../..//files/{{exerciseName}}/files.json"
     handle-as="json"
@@ -41,7 +41,7 @@ Example:
     url="../..//files/{{exerciseName}}/{{filename}}"
     handle-as="text"
     on-response="_handleResponse"
-    debounce-duration="300"></iron-ajax>
+    debounce-duration="300"></iron-ajax> -->
 
     <template is="dom-if" if="{{hasRole(role, roles.VIEWER)}}" restamp="true">
       <asq-java-q-viewer

@@ -405,8 +405,16 @@ Example:
       attached: function(){
         //delay to make sure ace-editors are initialized
         setTimeout(function(){
-          this.$.editor.addEventListener('editor-input', this._editorValueChanged.bind(this))
-          this.$.editor.editor.resize();
+          // this.$.editor.addEventListener('editor-input', this._editorValueChanged.bind(this))
+          // this.$.editor.editor.resize();
+          console.log("Sent files");
+          this.eventBus.emit('asq-plugin', {
+            type: 'asq-java-q',
+            data: {
+              type: 'getFiles',
+              questionUid: this.uid,
+            }
+          });
         }.bind(this), 1)
       },
       indexPlusOne: function(index){
@@ -444,6 +452,7 @@ Example:
           type: 'asq-java-q',
           data: {
             questionUid: this.uid,
+            type: 'run',
             timestamp: new Date(),
             submission: this.fileData
           }
@@ -457,9 +466,22 @@ Example:
         if(! newItem) return;
         this.set('fileData.files', newItem.submission.submission.files);
       },
+
+
+      _onReceiveFiles: function(evt) {
+        console.log("Received files:", evt);
+        console.log("ID", this.uid);
+        if (evt.questionUid != this.uid)
+          return;
+        this.set('fileData', evt.data);
+
+      },
+
+
       _onQuestionType: function (evt) {
         if (!evt || !evt.questionType)
           return;
+        console.log("Event received", evt);
         if (evt.questionType == 'asq-java-q') {
           if (evt.type == 'progress') {
             this._onProgress(evt);
@@ -467,6 +489,8 @@ Example:
             this._onRestorePresenter(evt);
           } else if (evt.type == 'output') {
             this._onReceiveResult(evt); // Show compilation and run results
+          } else if (evt.type == 'getFiles') {
+            this._onReceiveFiles(evt); // Show compilation and run results
           }
         }
       },

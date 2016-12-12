@@ -271,7 +271,21 @@ Example:
         fileData: {
           type: Object,
           notify: true,
-          value: function() { return {}; },
+          value: function() {
+            return {
+              // main: 'Main.java',
+              // files: [
+              //   {
+              //     name: "class1.java",
+              //     data: "void hello(){}"
+              //   },
+              //   {
+              //     name: "Main.java",
+              //     data: "void main(String[] args){}"
+              //   }
+              // ]
+            };
+          },
           observer: '_fileDataChanged',
         },
       },
@@ -279,8 +293,16 @@ Example:
       attached: function(){
         //delay to make sure ace-editors are initialized
         setTimeout(function(){
-          this.$.editor.addEventListener('editor-input', this._editorValueChanged.bind(this))
-          this.$.editor.editor.resize();
+          console.log("Sent files");
+          this.eventBus.emit('asq-plugin', {
+            type: 'asq-java-q',
+            data: {
+              type: 'getFiles',
+              questionUid: this.uid,
+            }
+          });
+          // this.$.editor.addEventListener('editor-input', this._editorValueChanged.bind(this))
+          // this.$.editor.editor.resize();
         }.bind(this), 1)
       },
 
@@ -320,6 +342,7 @@ Example:
           type: 'asq-java-q',
           data: {
             questionUid: this.uid,
+            type: 'run',
             timestamp: new Date(),
             submission: this.fileData
           }
@@ -350,6 +373,7 @@ Example:
       },
 
       _onQuestionType: function (evt) {
+        console.log("Event received", evt);
         if (!evt || !evt.questionType)
           return;
         if (evt.questionType == 'asq-java-q') {
@@ -357,9 +381,22 @@ Example:
             this._onRestoreViewer(evt);
           } else if (evt.type == 'output') {
             this._onReceiveResult(evt); // Show compilation and run results
+          } else if (evt.type == 'getFiles') {
+            this._onReceiveFiles(evt); // Show compilation and run results
           }
         }
       },
+
+
+      _onReceiveFiles: function(evt) {
+        console.log("Received files:", evt);
+        console.log("ID", this.uid);
+        if (evt.questionUid != this.uid)
+          return;
+        this.set('fileData', evt.data);
+      },
+
+
       _onRestoreViewer: function (evt) {
         evt.questions.forEach(function (q) {
           if (q.uid != this.uid)

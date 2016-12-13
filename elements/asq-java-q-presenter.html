@@ -457,6 +457,7 @@ Example:
         this.value = evt.target.editorValue;
       },
       _selectedSubmissionItemChanged: function(newItem, old){
+        console.log(newItem);
         if(! newItem) return;
         this.set('fileData.files', newItem.submission.submission.files);
       },

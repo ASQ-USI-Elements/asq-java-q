@@ -219,7 +219,8 @@ Example:
          */
         eventBus: {
           type: Object,
-          notify: true
+          notify: true,
+          observer: "_eventBusChanged",
         },
 
         _statusMessage: {

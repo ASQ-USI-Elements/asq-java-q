@@ -369,7 +369,8 @@ Example:
       },
 
       _onQuestionType: function (evt) {
-        console.log("Event received", evt);
+        console.log("Event received", evt.type);
+        console.log(this.uid);
         if (!evt || !evt.questionType)
           return;
         if (evt.questionType == 'asq-java-q') {

@@ -232,33 +232,35 @@ Example:
           value: function() { return [
             // {
             //   compile: true,
-            //   files: [
-            //     {
-            //       name: "Main.java",
-            //       data: "void main(){}"
-            //     },
-            //     {
-            //       name: "test.java",
-            //       data: "void asdasd(){}"
-            //     },
-            //   ]
+            //   submission: {
+            //     main: 'Main.java',
+            //     files: [
+            //       {
+            //         name: "Main.java",
+            //         data: "void main(){}"
+            //       },
+            //       {
+            //         name: "test.java",
+            //         data: "void asdasd(){}"
+            //       },
+            //     ]
+            //   }
             // },
             // {
-            //   compile: false,
-            //   files: [
-            //     {
-            //       name: "Main.java",
-            //       data: "void masddain(){}"
-            //     },
-            //     {
-            //       name: "hello.java",
-            //       data: "void asdasd(){}"
-            //     },
-            //     {
-            //       name: "asdasd.java",
-            //       data: "void asdasd(){}"
-            //     },
-            //   ]
+            //   compile: true,
+            //   submission: {
+            //     main: 'Main.java',
+            //     files: [
+            //       {
+            //         name: "Main.java",
+            //         data: "void main(){}"
+            //       },
+            //       {
+            //         name: "test2.java",
+            //         data: "void asdddddddddasd(){}"
+            //       },
+            //     ]
+            //   }
             // },
           ]; }
         },
@@ -433,6 +435,14 @@ Example:
           file.data = this.$$('#'+name).editorValue;
         }, this);
       },
+      _updateEditor: function() {
+        this.fileData.files.forEach(function(file) {
+          let name = file.name.split('.')[0];
+          console.log("filename: ", name);
+          // console.log('val', this.$$('#'+name).editorValue);
+          this.$$('#'+name).editorValue = 'lololol';
+        }, this);
+      },
 
       /**
        * When pressing the run button, send the data to the backend
@@ -453,13 +463,25 @@ Example:
         });
       },
 
+      _fileDataChanged: function(newData, old) {
+      },
+
       _editorValueChanged: function(evt){
         this.value = evt.target.editorValue;
       },
+
+
       _selectedSubmissionItemChanged: function(newItem, old){
-        console.log(newItem);
         if(! newItem) return;
-        this.set('fileData.files', newItem.submission.submission.files);
+        console.log('submission: ', newItem.submission);
+
+        // For some reason I have to reset and set after a timeout,
+        // otherwise, only the tabs get updated and the editor contents
+        // remain unchanged.
+        this.set('fileData', {}); // reset
+        setTimeout(function () {
+          this.set('fileData', newItem.submission); // set new data
+        }.bind(this), 0);
       },
 
 
@@ -492,7 +514,7 @@ Example:
       _onRestorePresenter: function (evt) {
         evt.questions.forEach(function(q){
           if(q.uid != this.uid) return;
-          this._submissions = q.answers;
+          // this._submissions = q.answers;
 
         }.bind(this));
       },
@@ -519,7 +541,7 @@ Example:
       _onProgress: function (evt) {
         if (!evt.question || evt.question.uid !== this.uid)
           return;
-        this._submissions = evt.question.answers;
+        // this._submissions = evt.question.answers;
       },
       _eventBusChanged: function (eventBus, old) {
         if(!eventBus) return;

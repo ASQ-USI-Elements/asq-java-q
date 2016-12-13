@@ -203,7 +203,7 @@ Example:
         <div id="submissionListWrapper">
           <iron-list id="submissionList" items="[[_submissions]]" as="submission" selection-enabled selected-item="{{_selectedSubmissionItem}}">
             <template>
-              <paper-item>#<span>[[indexPlusOne(index)]]</span>&nbsp;&nbsp;</paper-item>
+              <paper-item class$="{{_getSubmissionColor(submission)}}">#<span>[[indexPlusOne(index)]]</span>&nbsp;&nbsp;</paper-item>
             </template>
           </iron-list>
         </div>
@@ -247,7 +247,7 @@ Example:
             //   }
             // },
             // {
-            //   compile: true,
+            //   compile: false,
             //   submission: {
             //     main: 'Main.java',
             //     files: [
@@ -471,6 +471,12 @@ Example:
       },
 
 
+      _getSubmissionColor: function(submission) {
+        console.log("Color", submission.compile ? 'success' : 'failed');
+        return submission.compile ? 'success' : 'failed';
+      },
+
+
       _selectedSubmissionItemChanged: function(newItem, old){
         if(! newItem) return;
         console.log('submission: ', newItem.submission);
@@ -514,7 +520,7 @@ Example:
       _onRestorePresenter: function (evt) {
         evt.questions.forEach(function(q){
           if(q.uid != this.uid) return;
-          // this._submissions = q.answers;
+          this._submissions = q.answers;
 
         }.bind(this));
       },
@@ -541,7 +547,7 @@ Example:
       _onProgress: function (evt) {
         if (!evt.question || evt.question.uid !== this.uid)
           return;
-        // this._submissions = evt.question.answers;
+        this._submissions = evt.question.answers;
       },
       _eventBusChanged: function (eventBus, old) {
         if(!eventBus) return;

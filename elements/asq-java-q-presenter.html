@@ -262,7 +262,7 @@ Example:
             //     ]
             //   }
             // },
-          ]; }
+          ]; },
         },
         /**
          * Set to true to style the element as disabled.
@@ -520,7 +520,7 @@ Example:
       _onRestorePresenter: function (evt) {
         evt.questions.forEach(function(q){
           if(q.uid != this.uid) return;
-          this._submissions = q.answers;
+          this._submissions = q.answers.submission;
 
         }.bind(this));
       },
@@ -547,7 +547,7 @@ Example:
       _onProgress: function (evt) {
         if (!evt.question || evt.question.uid !== this.uid)
           return;
-        this._submissions = evt.question.answers;
+        this._submissions = evt.question.answers.submission;
       },
       _eventBusChanged: function (eventBus, old) {
         if(!eventBus) return;

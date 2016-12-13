@@ -489,9 +489,10 @@ Example:
         // remain unchanged.
         this.set('fileData', {}); // reset
         setTimeout(function () {
+          console.log('ajhsdjhaskjlhdfhkjladshhhhhhh',newItem.submission.submission);
           this.set('fileData', newItem.submission.submission); // set new data
-          this._errorMessage = newItem.submission.submission.error;
-          this._outputMessage = newItem.submission.submission.output;
+          this._errorMessage = newItem.submission.error;
+          this._outputMessage = newItem.submission.output;
         }.bind(this), 0);
       },
 

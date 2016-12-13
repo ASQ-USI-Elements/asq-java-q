@@ -31,6 +31,13 @@ describe("asqJavaqPlugin.js", function(){
             create: create
           }
         }
+      },
+      api: {
+        settings: {
+          defaultSettings: {
+            question: []
+          }
+        }
       }
     }
 
@@ -67,7 +74,7 @@ describe("asqJavaqPlugin.js", function(){
         slideshow_id: "0"
       })
       .then(function(){
-        this.asqJavaq.processEl.calledTwice.should.equal(true);
+        this.asqJavaq.processEl.calledThrice.should.equal(true);
         done();
       }.bind(this))
       .catch(function(err){
@@ -110,11 +117,14 @@ describe("asqJavaqPlugin.js", function(){
 
     before(function(){
      sinon.stub(this.asqJavaqPlugin.prototype, "parseSettings").returns(Promise.resolve({}));
-
     });
 
     beforeEach(function(){
       this.asqJavaq = new this.asqJavaqPlugin(this.asq);
+    });
+
+    after(function(){
+     this.asqJavaqPlugin.prototype.parseSettings.restore();
     });
 
     it("should assign a uid to the question if there's not one", function(){
@@ -183,6 +193,108 @@ describe("asqJavaqPlugin.js", function(){
         done(err);
       });
     });
+  });
+
+  describe("parseSettings", function(){
+    const defaultQuestionSettings = [
+      {
+        "key": "compileTimeoutMs",
+        "value": "10000",
+        "kind": "number",
+        "level": "question"
+      },
+      {
+        "key": "executionTimeoutMs",
+        "value": "10000",
+        "kind": "number",
+        "level": "question"
+      },
+      {
+        "key": "spamTimeoutMs",
+        "value": "1000",
+        "kind": "number",
+        "level": "question"
+      },
+      {
+        "key": "charactersMaxLength",
+        "value": "10000",
+        "kind": "number",
+        "level": "question"
+      },
+    ]
+
+    before(function(){
+     // sinon.stub(this.asq.prototype, "parseSettings").returns(Promise.resolve({}));
+    });
+
+    beforeEach(function(){
+      this.asqJavaq = new this.asqJavaqPlugin(this.asq);
+    });
+
+    it("default settings should be persisted to the db with no attributes for initial settings", function(done){
+      var $ = cheerio.load(this.simpleHtml);
+      var el = $(this.tagName)[0];
+
+      var result = this.asqJavaq.parseSettings($, el);
+      result.then(function(result){
+        expect(result).to.deep.equal(defaultQuestionSettings);
+        done();
+      }.bind(this))
+      .catch(function(err){
+        done(err);
+      });
+    });
+
+    it("default settings should be serialied back to the element with no attributes for initial settings", function(){
+      var $ = cheerio.load(this.simpleHtml);
+      var el = $(this.tagName)[0];
+
+      this.asqJavaq.parseSettings($, el);
+      $(el).attr('compile-timeout-ms').should.exist;
+      $(el).attr('compile-timeout-ms').should.equal(defaultQuestionSettings[0].value);
+
+      $(el).attr('execution-timeout-ms').should.exist;
+      $(el).attr('execution-timeout-ms').should.equal(defaultQuestionSettings[1].value);
+
+      $(el).attr('spam-timeout-ms').should.exist;
+      $(el).attr('spam-timeout-ms').should.equal(defaultQuestionSettings[2].value);
+
+      $(el).attr('characters-max-length').should.exist;
+      $(el).attr('characters-max-length').should.equal(defaultQuestionSettings[3].value);
+    });
+
+    it("custom settings should be persisted to the db", function(done){
+      var $ = cheerio.load(this.simpleHtml);
+      var el = $(this.tagName)[2];
+
+      var result = this.asqJavaq.parseSettings($, el);
+      result.then(function(result){
+        expect(result).to.deep.not.equal(defaultQuestionSettings);
+        done();
+      }.bind(this))
+      .catch(function(err){
+        done(err);
+      });
+    });
+
+    it("custom settings should be serialied back to the element", function(){
+      var $ = cheerio.load(this.simpleHtml);
+      var el = $(this.tagName)[2];
+
+      this.asqJavaq.parseSettings($, el);
+      $(el).attr('compile-timeout-ms').should.exist;
+      $(el).attr('compile-timeout-ms').should.not.equal(defaultQuestionSettings[0].value);
+
+      $(el).attr('execution-timeout-ms').should.exist;
+      $(el).attr('execution-timeout-ms').should.not.equal(defaultQuestionSettings[1].value);
+
+      $(el).attr('spam-timeout-ms').should.exist;
+      $(el).attr('spam-timeout-ms').should.not.equal(defaultQuestionSettings[2].value);
+
+      $(el).attr('characters-max-length').should.exist;
+      $(el).attr('characters-max-length').should.not.equal(defaultQuestionSettings[3].value);
+    });
+
   });
 
 

@@ -45,7 +45,10 @@ describe("asqJavaqPlugin.js", function(){
   describe("parseHtml", function(){
 
     before(function(){
-     sinon.stub(this.asqJavaqPlugin.prototype, "processEl").returns(Promise.resolve("res"));
+     sinon.stub(this.asqJavaqPlugin.prototype, "processEl").returns(Promise.resolve({
+      data: {exerciseName : 'ex1'}
+     }));
+     sinon.stub(this.asqJavaqPlugin.prototype, "getFiles").returns(Promise.resolve('{"files" : []}'));
     });
 
     beforeEach(function(){
@@ -60,7 +63,8 @@ describe("asqJavaqPlugin.js", function(){
 
     it("should call processEl() for all asq-java-q elements", function(done){
       this.asqJavaq.parseHtml({
-        html: this.simpleHtml
+        html: this.simpleHtml,
+        slideshow_id: "0"
       })
       .then(function(){
         this.asqJavaq.processEl.calledTwice.should.equal(true);
@@ -73,7 +77,8 @@ describe("asqJavaqPlugin.js", function(){
 
     it("should call `model().create()` to persist parsed questions in the db", function(done){
       this.asqJavaq.parseHtml({
-        html: this.simpleHtml
+        html: this.simpleHtml,
+        slideshow_id: "0"
       })
       .then(function(result){
         this.create.calledOnce.should.equal(true);
@@ -87,7 +92,8 @@ describe("asqJavaqPlugin.js", function(){
 
     it("should resolve with the file's html", function(done){
       this.asqJavaq.parseHtml({
-        html: this.simpleHtml
+        html: this.simpleHtml,
+        slideshow_id: "0"
       })
       .then(function(result){
         expect(result.html).to.equal(this.simpleHtml);

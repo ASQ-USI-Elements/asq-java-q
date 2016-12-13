@@ -472,21 +472,21 @@ Example:
 
 
       _getSubmissionColor: function(submission) {
-        console.log("Color", submission.compile ? 'success' : 'failed');
-        return submission.compile ? 'success' : 'failed';
+        console.log("Color", submission.submission.compile ? 'success' : 'failed');
+        return submission.submission.compile ? 'success' : 'failed';
       },
 
 
       _selectedSubmissionItemChanged: function(newItem, old){
         if(! newItem) return;
-        console.log('submission: ', newItem.submission);
+        console.log('submission: ', newItem.submission.submission);
 
         // For some reason I have to reset and set after a timeout,
         // otherwise, only the tabs get updated and the editor contents
         // remain unchanged.
         this.set('fileData', {}); // reset
         setTimeout(function () {
-          this.set('fileData', newItem.submission); // set new data
+          this.set('fileData', newItem.submission.submission); // set new data
         }.bind(this), 0);
       },
 
@@ -520,7 +520,7 @@ Example:
       _onRestorePresenter: function (evt) {
         evt.questions.forEach(function(q){
           if(q.uid != this.uid) return;
-          this._submissions = q.answers.submission;
+          this._submissions = q.answers;
 
         }.bind(this));
       },
@@ -547,7 +547,7 @@ Example:
       _onProgress: function (evt) {
         if (!evt.question || evt.question.uid !== this.uid)
           return;
-        this._submissions = evt.question.answers.submission;
+        this._submissions = evt.question.answers;
       },
       _eventBusChanged: function (eventBus, old) {
         if(!eventBus) return;

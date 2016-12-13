@@ -377,6 +377,9 @@ Example:
          * Structure example:
          * {
          *    main: 'Main.java',
+         *    compile: true,
+         *    output: 'Hello world',
+         *    error: 'blablabla',
          *    files: [
          *      {
          *        name: "class1.java",
@@ -487,6 +490,8 @@ Example:
         this.set('fileData', {}); // reset
         setTimeout(function () {
           this.set('fileData', newItem.submission.submission); // set new data
+          this._errorMessage = newItem.submission.submission.error;
+          this._outputMessage = newItem.submission.submission.output;
         }.bind(this), 0);
       },
 

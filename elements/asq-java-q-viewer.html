@@ -112,7 +112,7 @@ Example:
           <span id="statusMsg">{{_statusMessage}}</span>
         </paper-toolbar>
 
-        <paper-tabs selected="{{_selectedTab}}">
+        <paper-tabs selected="{{_selectedTab}}" scrollable>
           <template is="dom-repeat" items="{{fileData.files}}" as="file">
             <paper-tab>{{file.name}}</paper-tab>
           </template>
@@ -298,8 +298,6 @@ Example:
               questionUid: this.uid,
             }
           });
-          // this.$.editor.addEventListener('editor-input', this._editorValueChanged.bind(this))
-          // this.$.editor.editor.resize();
         }.bind(this), 1)
       },
 

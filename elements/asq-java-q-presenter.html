@@ -177,7 +177,7 @@ Example:
           <span id="statusMsg">{{_statusMessage}}</span>
         </paper-toolbar>
 
-        <paper-tabs selected="{{_selectedTab}}">
+        <paper-tabs selected="{{_selectedTab}}" scrollable>
           <template is="dom-repeat" items="{{fileData.files}}" as="file">
             <paper-tab>{{file.name}}</paper-tab>
           </template>

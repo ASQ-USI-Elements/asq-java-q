@@ -75,8 +75,12 @@ Example:
   }
 
   #outputMsg{
-    padding-top: 20px;
     font-family: monospace;
+  }
+
+  pre {
+    padding: 0;
+    margin: 0;
   }
 
   .question-title {
@@ -126,8 +130,8 @@ Example:
           </iron-pages>
         </div>
         <div id="output">
-          <div id="errorMsg">{{_errorMessage}}</div>
-          <div id="outputMsg">{{_outputMessage}}</div>
+          <div id="errorMsg"><pre>{{_errorMessage}}</pre></div>
+          <div id="outputMsg"><pre>{{_outputMessage}}</pre></div>
         </div>
       </div>
     </div>

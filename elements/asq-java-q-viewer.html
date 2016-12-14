@@ -281,7 +281,7 @@ Example:
 
         didRequestSkeleton: {
           type: Boolean,
-          default: false,
+          value: false,
         },
       },
 
@@ -409,7 +409,8 @@ Example:
         eventBus.on('asq:question_type', this._onQuestionType.bind(this));
 
         if (!this.didRequestSkeleton) {
-          this.eventBus.emit('asq-plugin', {
+          console.log("Requesting files")
+          eventBus.emit('asq-plugin', {
             type: 'asq-java-q',
             data: {
               type: 'getFiles',
@@ -417,6 +418,8 @@ Example:
             }
           });
           this.didRequestSkeleton = true;
+        } else {
+          console.log("Already requested files");
         }
       },
 

@@ -365,6 +365,11 @@ Example:
           notify: true,
           value: function() { return {}; },
         },
+
+        didRequestSkeleton: {
+          type: Boolean,
+          default: false,
+        },
       },
 
       toggleSubmissionList: function(evt, detail){
@@ -516,9 +521,21 @@ Example:
           return;
         this._submissions = evt.question.answers;
       },
+
       _eventBusChanged: function (eventBus, old) {
         if(!eventBus) return;
         eventBus.on('asq:question_type', this._onQuestionType.bind(this));
+
+        if (!this.didRequestSkeleton) {
+          this.eventBus.emit('asq-plugin', {
+            type: 'asq-java-q',
+            data: {
+              type: 'getFiles',
+              questionUid: this.uid,
+            }
+          });
+          this.didRequestSkeleton = true;
+        }
       }
     });
   </script>

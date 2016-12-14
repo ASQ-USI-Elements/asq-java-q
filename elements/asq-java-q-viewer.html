@@ -156,6 +156,7 @@ Example:
           notify: true,
           reflectToAttribute: true,
         },
+
         /**
          * The fontSize property of the ace-element.
          */
@@ -165,6 +166,7 @@ Example:
           notify: true,
           reflectToAttribute: true
         },
+
         /**
          * The mode property of the ace-element.
          */
@@ -174,6 +176,7 @@ Example:
           reflectToAttribute: true,
           notify: true
         },
+
         /**
          * The tabSize property of the ace-element.
          */
@@ -183,6 +186,7 @@ Example:
           notify: true,
           reflectToAttribute: true,
         },
+
         /**
          * The theme property of the ace-element.
          */
@@ -192,6 +196,7 @@ Example:
           notify: true,
           reflectToAttribute: true,
         },
+
         /**
          * The value property of the ace-element.
          */
@@ -233,12 +238,14 @@ Example:
           notify: true,
           reflectToAttribute: true,
         },
+
         _errorMessage: {
           type: String,
           value: 'Error goes here.',
           notify: true,
           reflectToAttribute: true,
         },
+
         _outputMessage: {
           type: String,
           value: 'Output goes here.',
@@ -271,29 +278,24 @@ Example:
             };
           },
         },
+
+        didRequestSkeleton: {
+          type: Boolean,
+          default: false,
+        },
       },
 
-      attached: function(){
-        //delay to make sure ace-editors are initialized
-        setTimeout(function(){
-          console.log("Sent files");
-          this.eventBus.emit('asq-plugin', {
-            type: 'asq-java-q',
-            data: {
-              type: 'getFiles',
-              questionUid: this.uid,
-            }
-          });
-        }.bind(this), 1)
+      _valueChanged: function(newVal){
+        if(this.value && this.$.editor.editorValue != this.value){
+          this.$.editor.editorValue = this.value;
+          this.$.editor.editor.clearSelection(1);
+        }
       },
 
       _editorValueChanged: function(evt){
         this.value = evt.target.editorValue;
       },
 
-      /**
-       * Removes '.java' from file names -> Used for editor IDs
-       */
       _computeFileName: function(fileName) {
         return fileName.split('.')[0];
       },
@@ -351,6 +353,7 @@ Example:
       },
 
       _onQuestionType: function (evt) {
+        console.log("Event received", evt.type);
         if (!evt || !evt.questionType)
           return;
         if (evt.questionType == 'asq-java-q') {
@@ -404,6 +407,17 @@ Example:
       _eventBusChanged: function (eventBus, old) {
         if(!eventBus) return;
         eventBus.on('asq:question_type', this._onQuestionType.bind(this));
+
+        if (!this.didRequestSkeleton) {
+          this.eventBus.emit('asq-plugin', {
+            type: 'asq-java-q',
+            data: {
+              type: 'getFiles',
+              questionUid: this.uid,
+            }
+          });
+          this.didRequestSkeleton = true;
+        }
       },
 
     });

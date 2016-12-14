@@ -301,9 +301,11 @@ Example:
           notify: true,
           reflectToAttribute: true,
         },
+
         _selectedSubmissionItem: {
           observer: '_selectedSubmissionItemChanged'
         },
+
         _selectedTab:{
           type: Number,
           notify: true,
@@ -391,10 +393,16 @@ Example:
         return ++index;
       },
 
+      /**
+       * Removes '.java' from file names -> Used for editor IDs
+       */
       _computeFileName: function(fileName) {
         return fileName.split('.')[0];
       },
 
+      /**
+       * Updates fileData object with new changes from the user.
+       */
       _refreshData: function() {
         this.fileData.files.forEach(function(file) {
           let name = file.name.split('.')[0];
@@ -426,6 +434,9 @@ Example:
         this.value = evt.target.editorValue;
       },
 
+      /**
+       * Selects corresponding css class on whether the submission compiles or not.
+       */
       _getSubmissionColor: function(submission) {
         return submission.submission.compile ? 'success' : 'failed';
       },
@@ -433,7 +444,6 @@ Example:
 
       _selectedSubmissionItemChanged: function(newItem, old){
         if(! newItem) return;
-
         // For some reason I have to reset and set after a timeout,
         // otherwise, only the tabs get updated and the editor contents
         // remain unchanged.
@@ -445,7 +455,9 @@ Example:
         }.bind(this), 0);
       },
 
-
+      /**
+       * Called on receiving skeleton files -> Updates the editor
+       */
       _onReceiveFiles: function(evt) {
         console.log("Received files:", evt);
         if (evt.questionUid != this.uid)
@@ -454,7 +466,9 @@ Example:
 
       },
 
-
+      /**
+       * Event switcher
+       */
       _onQuestionType: function (evt) {
         if (!evt || !evt.questionType)
           return;
@@ -471,6 +485,7 @@ Example:
           }
         }
       },
+
       _onRestorePresenter: function (evt) {
         evt.questions.forEach(function(q){
           if(q.uid != this.uid) return;
@@ -490,9 +505,7 @@ Example:
         }
        */
       _onReceiveResult: function(evt) {
-        if (evt.data.questionUid != this.uid)
-          return;
-
+        if (evt.data.questionUid != this.uid) return;
         this._statusMessage = evt.data.passed ? 'Build successful' : 'Build failed';
         this._outputMessage = evt.data.output;
         this._errorMessage = evt.data.errorMessage;
@@ -507,7 +520,6 @@ Example:
         if(!eventBus) return;
         eventBus.on('asq:question_type', this._onQuestionType.bind(this));
       }
-
     });
   </script>
 </dom-module>

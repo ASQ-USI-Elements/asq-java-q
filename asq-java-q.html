@@ -142,19 +142,10 @@ Example:
           reflectToAttribute: true,
         },
 
-        filename: {
-          type: String,
-          value: '',
-          notify: true,
-          reflectToAttribute: true,
-        },
-
         _selectedSubmissionItem: {
           observer: '_selectedSubmissionItemChanged'
         },
-        _selectedTab:{
-          notify: true
-        },
+
         /**
          * Event bus to communicate with ASQ
          */
@@ -163,12 +154,6 @@ Example:
           notify: true
         },
 
-        exerciseName: {
-          type: String,
-          value: '',
-          notify: true,
-          reflectToAttribute: true,
-        }
       },
 
       /**

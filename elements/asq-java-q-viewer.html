@@ -10,7 +10,6 @@
 <link rel="import" href="../../iron-ajax/iron-ajax.html">
 <link rel="import" href="../../iron-pages/iron-pages.html">
 <link rel="import" href="../../paper-tabs/paper-tabs.html">
-<link rel="import" href="../../paper-tab/paper-tab.html">
 
 <!--
 `asq-java-q` is a Java question type.
@@ -246,13 +245,6 @@ Example:
           reflectToAttribute: true,
         },
 
-        folderName: {
-          type: String,
-          value: '',
-          notify: true,
-          reflectToAttribute: true,
-        },
-
         /**
          * Contains the files data
          * Structure example:
@@ -275,20 +267,8 @@ Example:
           notify: true,
           value: function() {
             return {
-              // main: 'Main.java',
-              // files: [
-              //   {
-              //     name: "class1.java",
-              //     data: "void hello(){}"
-              //   },
-              //   {
-              //     name: "Main.java",
-              //     data: "void main(String[] args){}"
-              //   }
-              // ]
             };
           },
-          observer: '_fileDataChanged',
         },
       },
 
@@ -314,7 +294,6 @@ Example:
       },
 
       _editorValueChanged: function(evt){
-        console.log("changing");
         this.value = evt.target.editorValue;
       },
 
@@ -374,7 +353,6 @@ Example:
 
       _onQuestionType: function (evt) {
         console.log("Event received", evt.type);
-        console.log(this.uid);
         if (!evt || !evt.questionType)
           return;
         if (evt.questionType == 'asq-java-q') {
@@ -391,7 +369,6 @@ Example:
 
       _onReceiveFiles: function(evt) {
         console.log("Received files:", evt);
-        console.log("ID", this.uid);
         if (evt.questionUid != this.uid)
           return;
         this.set('fileData', evt.data);
@@ -430,10 +407,6 @@ Example:
         eventBus.on('asq:question_type', this._onQuestionType.bind(this));
       },
 
-      _fileDataChanged: function(fileData, old) {
-        console.log("New fileData:", fileData);
-        // this.fileData = fileData;
-      },
     });
   </script>
 </dom-module>

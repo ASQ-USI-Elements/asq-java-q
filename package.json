@@ -22,7 +22,7 @@
   "bugs": {
     "url": "https://github.com/ASQ-USI-Elements/asq-java-q/issues"
   },
-  "scripts" : {
+  "scripts": {
     "test:server": "mocha test/server"
   },
   "dependencies": {
@@ -32,7 +32,8 @@
     "json-socket": "*",
     "lodash": "^3.7.0",
     "mongoose": "^4.7.1",
-    "net": "^1.0.2"
+    "net": "^1.0.2",
+    "redis": "^2.6.3"
   },
   "license": "MIT",
   "devDependencies": {

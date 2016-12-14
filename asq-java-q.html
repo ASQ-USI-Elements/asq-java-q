@@ -30,19 +30,6 @@ Example:
 
   <template>
 
-    <!-- <iron-ajax id="jsonFile"
-    auto
-    url="../..//files/{{exerciseName}}/files.json"
-    handle-as="json"
-    on-response="_onFilesJsonReceived"
-    debounce-duration="300"></iron-ajax>
-
-    <iron-ajax id="ajaxFiles"
-    url="../..//files/{{exerciseName}}/{{filename}}"
-    handle-as="text"
-    on-response="_handleResponse"
-    debounce-duration="300"></iron-ajax> -->
-
     <template is="dom-if" if="{{hasRole(role, roles.VIEWER)}}" restamp="true">
       <asq-java-q-viewer
         uid="[[uid]]"
@@ -173,16 +160,8 @@ Example:
          */
         eventBus: {
           type: Object,
-          // observer: "_eventBusChanged",
           notify: true
         },
-
-        // fileData: {
-        //   type: Object,
-        //   notify: true,
-        //   reflectToAttribute: true,
-        //   value: function() { return {}; },
-        // },
 
         exerciseName: {
           type: String,
@@ -264,39 +243,6 @@ Example:
       _valueChanged:function(newVal, oldVal){
         this.fire('questioninput', newVal)
       },
-
-      /**
-       * Handles response from ajax request to read skeleton file(s)
-       */
-      _handleResponse: function(evt){
-        console.log("File contents", evt);
-        // HACK: recover the filename, is there a better way to do it?
-        // Saving the name when calling the request doesn't work,
-        // since the responses will not be necessarly in order.
-        const url = evt.detail.url.split('/');
-        const name = url[url.length -1];
-        this.push('fileData.files',
-                  { name: name,
-                    data: evt.detail.response})
-      },
-
-      /**
-       * Handles response from ajax request to read skeleton file(s)
-       */
-      _onFilesJsonReceived: function(evt){
-        const response = evt.detail.response;
-        let ajax = this.$.ajaxFiles;
-        this.set('fileData.main', response.main);
-        this.set('fileData.files', []);
-        console.log("filedata", this.fileData);
-
-        response.files.forEach(function(file) {
-          console.log("Getting file", file);
-          this.set('filename', file);
-          ajax.generateRequest();
-        }, this);
-      },
-
     });
   </script>
 </dom-module>

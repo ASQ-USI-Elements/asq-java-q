@@ -475,7 +475,6 @@ Example:
 
 
       _getSubmissionColor: function(submission) {
-        console.log("Color", submission.submission.compile ? 'success' : 'failed');
         return submission.submission.compile ? 'success' : 'failed';
       },
 
@@ -489,7 +488,6 @@ Example:
         // remain unchanged.
         this.set('fileData', {}); // reset
         setTimeout(function () {
-          console.log('ajhsdjhaskjlhdfhkjladshhhhhhh',newItem.submission.submission);
           this.set('fileData', newItem.submission.submission); // set new data
           this._errorMessage = newItem.submission.error;
           this._outputMessage = newItem.submission.output;
@@ -499,7 +497,6 @@ Example:
 
       _onReceiveFiles: function(evt) {
         console.log("Received files:", evt);
-        console.log("ID", this.uid);
         if (evt.questionUid != this.uid)
           return;
         this.set('fileData', evt.data);

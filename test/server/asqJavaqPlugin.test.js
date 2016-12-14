@@ -89,6 +89,7 @@ describe("asqJavaqPlugin.js", function(){
       })
       .then(function(result){
         this.create.calledOnce.should.equal(true);
+        console.log(this.create.calledWith({}))
         this.create.calledWith(["res", "res"]).should.equal(true);
         done();
       }.bind(this))
@@ -219,6 +220,12 @@ describe("asqJavaqPlugin.js", function(){
         "key": "charactersMaxLength",
         "value": "10000",
         "kind": "number",
+        "level": "question"
+      },
+      {
+        "key": "exerciseName",
+        "value": "none",
+        "kind": "string",
         "level": "question"
       },
     ]

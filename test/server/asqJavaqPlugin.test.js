@@ -89,12 +89,11 @@ describe("asqJavaqPlugin.js", function(){
       })
       .then(function(result){
         this.create.calledOnce.should.equal(true);
-        console.log(this.create.args[0][0][1]);
 
         this.create.calledWith(sinon.match([
-          {data:{exerciseName:'ex1',files:{main: undefined, files:[]}}},
-          {data:{exerciseName:"ex1",files:{main: undefined, files:[]}}},
-          {data:{exerciseName:"ex1",files:{main: undefined, files:[]}}}
+          {data:{exerciseName:'ex1',files:{main: undefined, files:[], tests:[]}}},
+          {data:{exerciseName:"ex1",files:{main: undefined, files:[], tests:[]}}},
+          {data:{exerciseName:"ex1",files:{main: undefined, files:[], tests:[]}}}
         ])).should.equal(true);
         done();
       }.bind(this))

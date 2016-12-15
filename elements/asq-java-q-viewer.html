@@ -114,6 +114,7 @@ Example:
         <paper-toolbar>
           <paper-icon-button id="executeBtn" icon="av:play-arrow" on-tap="_onExecuteBtnTap" title="Run"></paper-icon-button>
           <span id="statusMsg">{{_statusMessage}}</span>
+          <paper-icon-button id="resetBtn" icon="refresh" on-tap="_onResetBtnTap" title="Reset to skeleton"></paper-icon-button>
         </paper-toolbar>
 
         <paper-tabs selected="{{_selectedTab}}" scrollable>
@@ -329,6 +330,16 @@ Example:
         });
       },
 
+      _onResetBtnTap: function(evt) {
+        this.eventBus.emit('asq-plugin', {
+          type: 'asq-java-q',
+          data: {
+            type: 'getFiles',
+            questionUid: this.uid,
+          }
+        });
+      },
+
       /**
        * The `submit` method returns an object that respresents the submission of this question. The object has the following structure:
            {
@@ -374,7 +385,11 @@ Example:
         console.log("Received files:", evt);
         if (evt.questionUid != this.uid)
           return;
-        this.set('fileData', evt.data);
+
+        this.set('fileData', {}); // reset
+        setTimeout(function () {
+          this.set('fileData',  evt.data); // set new data
+        }.bind(this), 0);
       },
 
       _onRestoreViewer: function (evt) {
@@ -393,6 +408,9 @@ Example:
           output: String,
           errorMessage: String,
           timeOut: Boolean
+          totalNumberOfTests: Integer,
+          numberOfTestsPassed: Integer,
+          testsOutput: String      // output of all failed tests
         }
        */
       _onReceiveResult: function(evt) {

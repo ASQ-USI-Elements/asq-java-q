@@ -181,6 +181,7 @@ Example:
         <paper-toolbar>
           <paper-icon-button id="executeBtn" icon="av:play-arrow" on-tap="_onExecuteBtnTap" title="Execute Query"></paper-icon-button>
           <span id="statusMsg">{{_statusMessage}}</span>
+          <paper-icon-button id="resetBtn" icon="refresh" on-tap="_onResetBtnTap" title="Reset to skeleton"></paper-icon-button>
         </paper-toolbar>
 
         <paper-tabs selected="{{_selectedTab}}" scrollable>
@@ -405,6 +406,17 @@ Example:
         return fileName.split('.')[0];
       },
 
+
+      _onResetBtnTap: function(evt) {
+        this.eventBus.emit('asq-plugin', {
+          type: 'asq-java-q',
+          data: {
+            type: 'getFiles',
+            questionUid: this.uid,
+          }
+        });
+      },
+
       /**
        * Updates fileData object with new changes from the user.
        */
@@ -467,7 +479,10 @@ Example:
         console.log("Received files:", evt);
         if (evt.questionUid != this.uid)
           return;
-        this.set('fileData', evt.data);
+        this.set('fileData', {}); // reset
+        setTimeout(function () {
+          this.set('fileData',  evt.data); // set new data
+        }.bind(this), 0);
 
       },
 

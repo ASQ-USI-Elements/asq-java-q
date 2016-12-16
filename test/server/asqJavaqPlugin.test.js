@@ -210,7 +210,7 @@ describe("asqJavaqPlugin.js", function(){
       },
       {
         "key": "executionTimeoutMs",
-        "value": "10000",
+        "value": "2000",
         "kind": "number",
         "level": "question"
       },

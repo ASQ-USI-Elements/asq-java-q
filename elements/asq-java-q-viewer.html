@@ -305,6 +305,20 @@ Example:
         return fileName.split('.')[0];
       },
 
+
+      _formatTestsResults: function(object) {
+        const testsPassed = object.numberOfTestsPassed;
+        const totalTests = object.totalNumberOfTests;
+        if (testsPassed !== undefined
+            && totalTests !== undefined) {
+              this._testsResults = 'Passed '+ testsPassed + ' / ' + totalTests + ' tests.';
+              this._testsOutput = object.testsOutput;
+        } else {
+          this._testsResults = '';
+          this._testsOutput = '';
+        }
+      },
+
       /**
        * Updates fileData object with new changes from the user.
        */
@@ -425,8 +439,9 @@ Example:
         this._statusMessage = evt.data.passed ? 'Build successful' : 'Build failed';
         this._outputMessage = evt.data.output;
         this._errorMessage = evt.data.errorMessage;
-        this._testsResults = 'Passed '+ evt.data.numberOfTestsPassed + ' / ' + evt.data.totalNumberOfTests + ' tests.';
-        this._testsOutput = evt.data.testsOutput;
+        this._formatTestsResults(evt.data);
+        // this._testsResults = 'Passed '+ evt.data.numberOfTestsPassed + ' / ' + evt.data.totalNumberOfTests + ' tests.';
+        // this._testsOutput = evt.data.testsOutput;
       },
 
       _eventBusChanged: function (eventBus, old) {

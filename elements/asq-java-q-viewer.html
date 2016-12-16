@@ -76,12 +76,13 @@ Example:
   }
 
   #outputMsg{
-    font-family: monospace;
+    /*font-family: monospace;*/
   }
 
   pre {
     padding: 0;
     margin: 0;
+    font-family: monospace;
   }
 
   .question-title {
@@ -132,11 +133,10 @@ Example:
           </iron-pages>
         </div>
         <div id="output">
-          <div id="outputMsg"><pre>{{_testsResults}}</pre></div>
-          <div id="outputMsg"><pre>{{_testsOutput}}</pre></div>
+          <div id="testsResults"><pre>{{_testsResults}}</pre></div>
+          <div id="testsOutput"><pre>{{_testsOutput}}</pre></div>
           <div id="errorMsg"><pre>{{_errorMessage}}</pre></div>
           <div id="outputMsg"><pre>{{_outputMessage}}</pre></div>
-
         </div>
       </div>
     </div>

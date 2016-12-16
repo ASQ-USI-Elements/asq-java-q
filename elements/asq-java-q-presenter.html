@@ -169,6 +169,10 @@ Example:
       background-color: var(--paper-green-300);
     }
 
+    .testsFailed {
+      background-color: var(--paper-yellow-300);
+    }
+
   </style>
 
   <template>
@@ -198,8 +202,8 @@ Example:
           </iron-pages>
         </div>
         <div id="output">
-          <div id="outputMsg"><pre>{{_testsResults}}</pre></div>
-          <div id="outputMsg"><pre>{{_testsOutput}}</pre></div>
+          <div id="testsResults"><pre>{{_testsResults}}</pre></div>
+          <div id="testsOutput"><pre>{{_testsOutput}}</pre></div>
           <div id="errorMsg"><pre>{{_errorMessage}}</pre></div>
           <div id="outputMsg"><pre>{{_outputMessage}}</pre></div>
         </div>
@@ -457,7 +461,14 @@ Example:
        * Selects corresponding css class on whether the submission compiles or not.
        */
       _getSubmissionColor: function(submission) {
-        return submission.submission.compile ? 'success' : 'failed';
+        const sub = submission.submission;
+        if (sub.compile) {
+          if (sub.numberOfTestsPassed === sub.totalNumberOfTests)
+            return 'success';
+          else return 'testsFailed';
+        } else {
+          return 'failed';
+        }
       },
 
       _formatTestsResultsSubmission: function(submission) {

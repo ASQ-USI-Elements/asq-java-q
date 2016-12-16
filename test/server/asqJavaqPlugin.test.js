@@ -23,7 +23,6 @@ describe("asqJavaqPlugin.js", function(){
     this.tagName = "asq-java-q";
 
     this.asq = {
-      client : {},
       registerHook: function(){},
       registerEvent: function(){},
       db: {

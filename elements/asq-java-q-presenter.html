@@ -56,7 +56,7 @@ Example:
     @apply(--asq-java-q-output);
     @apply(--layout-flex);
     padding: 20px;
-    overflow-y: scroll;
+    overflow: auto;
     font-size: 0.5em;
   }
 
@@ -200,6 +200,8 @@ Example:
         <div id="output">
           <div id="errorMsg"><pre>{{_errorMessage}}</pre></div>
           <div id="outputMsg"><pre>{{_outputMessage}}</pre></div>
+          <div id="outputMsg"><pre>{{_testsResults}}</pre></div>
+          <div id="outputMsg"><pre>{{_testsOutput}}</pre></div>
         </div>
       </div>
 
@@ -210,7 +212,7 @@ Example:
         <div id="submissionListWrapper">
           <iron-list id="submissionList" items="[[_submissions]]" as="submission" selection-enabled selected-item="{{_selectedSubmissionItem}}">
             <template>
-              <paper-item class$="{{_getSubmissionColor(submission)}}">#<span>[[indexPlusOne(index)]]</span>&nbsp;&nbsp;</paper-item>
+              <paper-item class$="{{_getSubmissionColor(submission)}}">#<span>[[indexPlusOne(index)]]</span>&nbsp;&nbsp; [[_formatTestsResults(submission)]]</paper-item>
             </template>
           </iron-list>
         </div>
@@ -458,6 +460,16 @@ Example:
         return submission.submission.compile ? 'success' : 'failed';
       },
 
+      _formatTestsResults: function(submission) {
+        const testsPassed = submission.submission.numberOfTestsPassed;
+        const totalTests = submission.submission.totalNumberOfTests;
+        if (testsPassed !== undefined && totalTests !== undefined) {
+          return testsPassed + '/' + totalTests;
+        } else {
+          return '';
+        }
+      },
+
 
       _selectedSubmissionItemChanged: function(newItem, old){
         if(! newItem) return;
@@ -469,6 +481,8 @@ Example:
           this.set('fileData', newItem.submission.submission); // set new data
           this._errorMessage = newItem.submission.error;
           this._outputMessage = newItem.submission.output;
+          this._testsResults = 'Passed '+ newItem.submission.numberOfTestsPassed + ' / ' + newItem.submission.totalNumberOfTests + ' tests.';
+          this._testsOutput = newItem.submission.testsOutput;
         }.bind(this), 0);
       },
 
@@ -529,6 +543,8 @@ Example:
         this._statusMessage = evt.data.passed ? 'Build successful' : 'Build failed';
         this._outputMessage = evt.data.output;
         this._errorMessage = evt.data.errorMessage;
+        this._testsResults = 'Passed '+ evt.data.numberOfTestsPassed + ' / ' + evt.data.totalNumberOfTests + ' tests.';
+        this._testsOutput = evt.data.testsOutput;
       },
 
       _onProgress: function (evt) {

@@ -71,6 +71,7 @@ Example:
     @apply(--layout-flex);
     padding: 20px;
     overflow-y: scroll;
+    overflow-x: scroll;
     font-size: 0.5em;
   }
 
@@ -131,8 +132,11 @@ Example:
           </iron-pages>
         </div>
         <div id="output">
+          <div id="outputMsg"><pre>{{_testsResults}}</pre></div>
+          <div id="outputMsg"><pre>{{_testsOutput}}</pre></div>
           <div id="errorMsg"><pre>{{_errorMessage}}</pre></div>
           <div id="outputMsg"><pre>{{_outputMessage}}</pre></div>
+
         </div>
       </div>
     </div>
@@ -414,12 +418,15 @@ Example:
         }
        */
       _onReceiveResult: function(evt) {
+        console.log('Receving output:', evt);
         // Only accept when it's the correct slide
         if (evt.data.questionUid != this.uid)
           return;
         this._statusMessage = evt.data.passed ? 'Build successful' : 'Build failed';
         this._outputMessage = evt.data.output;
         this._errorMessage = evt.data.errorMessage;
+        this._testsResults = 'Passed '+ evt.data.numberOfTestsPassed + ' / ' + evt.data.totalNumberOfTests + ' tests.';
+        this._testsOutput = evt.data.testsOutput;
       },
 
       _eventBusChanged: function (eventBus, old) {

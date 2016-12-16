@@ -284,28 +284,23 @@ Example:
           },
         },
 
-        didRequestSkeleton: {
+        _didRequestSkeleton: {
           type: Boolean,
           value: false,
         },
       },
 
-      _valueChanged: function(newVal){
-        if(this.value && this.$.editor.editorValue != this.value){
-          this.$.editor.editorValue = this.value;
-          this.$.editor.editor.clearSelection(1);
-        }
-      },
 
-      _editorValueChanged: function(evt){
-        this.value = evt.target.editorValue;
-      },
-
+      /**
+       * Removes '.java' from file names -> Used for editor IDs
+       */
       _computeFileName: function(fileName) {
         return fileName.split('.')[0];
       },
 
-
+      /**
+       * Formats test results to show inside the output box
+       */
       _formatTestsResults: function(object) {
         const testsPassed = object.numberOfTestsPassed;
         const totalTests = object.totalNumberOfTests;
@@ -363,7 +358,7 @@ Example:
            {
               questionUid: this.uid,
               timestamp: new Date(),
-              submission: this.value
+              submission: this.fileData
            }
        * Only enabled when the `role` of the element is <b>viewer</b>.
        *
@@ -440,15 +435,13 @@ Example:
         this._outputMessage = evt.data.output;
         this._errorMessage = evt.data.errorMessage;
         this._formatTestsResults(evt.data);
-        // this._testsResults = 'Passed '+ evt.data.numberOfTestsPassed + ' / ' + evt.data.totalNumberOfTests + ' tests.';
-        // this._testsOutput = evt.data.testsOutput;
       },
 
       _eventBusChanged: function (eventBus, old) {
         if(!eventBus) return;
         eventBus.on('asq:question_type', this._onQuestionType.bind(this));
 
-        if (!this.didRequestSkeleton) {
+        if (!this._didRequestSkeleton) {
           console.log("Requesting files")
           eventBus.emit('asq-plugin', {
             type: 'asq-java-q',
@@ -457,7 +450,7 @@ Example:
               questionUid: this.uid,
             }
           });
-          this.didRequestSkeleton = true;
+          this._didRequestSkeleton = true;
         } else {
           console.log("Already requested files");
         }

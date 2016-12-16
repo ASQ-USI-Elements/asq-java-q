@@ -73,11 +73,6 @@ Example:
       ],
 
       properties: {
-        _answers: {
-          type: Array,
-          notify: true,
-          value: function() { return []; }
-        },
         /**
          * Set to true to style the element as disabled.
          * Binded to `readonly` of ace-editor.
@@ -201,15 +196,12 @@ Example:
       },
 
       /**
-       * Collect answers from inner `asq-option`s and orgnize them
-       * into an object.
-       *
-
-          {
-            uid: this.uid,
+       * Calls submit for the viewer that sends the following:
+         {
+            questionUid: this.uid,
             timestamp: new Date(),
-            options: options
-          }
+            submission: this.fileData
+         }
 
        */
       submit: function() {

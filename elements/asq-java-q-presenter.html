@@ -216,7 +216,7 @@ Example:
         <div id="submissionListWrapper">
           <iron-list id="submissionList" items="[[_submissions]]" as="submission" selection-enabled selected-item="{{_selectedSubmissionItem}}">
             <template>
-              <paper-item class$="{{_getSubmissionColor(submission)}}">#<span>[[indexPlusOne(index)]]</span>&nbsp;&nbsp; [[_formatTestsResultsSubmission(submission)]]</paper-item>
+              <paper-item class$="{{_getSubmissionColor(submission)}}">#<span>[[_indexPlusOne(index)]]</span>&nbsp;&nbsp; [[_formatTestsResultsSubmission(submission)]]</paper-item>
             </template>
           </iron-list>
         </div>
@@ -233,12 +233,10 @@ Example:
       ],
 
       properties: {
-        _answers: {
-          type: Array,
-          notify: true,
-          value: function() { return []; }
-        },
 
+        /**
+         * The list of submission events
+         */
         _submissions: {
           type: Array,
           notify: true,
@@ -354,7 +352,8 @@ Example:
          *    main: 'Main.java',
          *    compile: true,
          *    output: 'Hello world',
-         *    error: 'Error: blabla',
+         *    error: 'Error: error',
+         *
          *    files: [
          *      {
          *        name: "class1.java",
@@ -373,7 +372,7 @@ Example:
           value: function() { return {}; },
         },
 
-        didRequestSkeleton: {
+        _didRequestSkeleton: {
           type: Boolean,
           default: false,
         },
@@ -385,23 +384,7 @@ Example:
         this.$.submissionList.notifyResize();
       },
 
-      attached: function(){
-        //delay to make sure ace-editors are initialized
-        setTimeout(function(){
-          // this.$.editor.addEventListener('editor-input', this._editorValueChanged.bind(this))
-          // this.$.editor.editor.resize();
-          console.log("Sent files");
-          this.eventBus.emit('asq-plugin', {
-            type: 'asq-java-q',
-            data: {
-              type: 'getFiles',
-              questionUid: this.uid,
-            }
-          });
-        }.bind(this), 1)
-      },
-
-      indexPlusOne: function(index){
+      _indexPlusOne: function(index){
         return ++index;
       },
 
@@ -471,6 +454,9 @@ Example:
         }
       },
 
+      /**
+       * Formats test results to show inside the submission list
+       */
       _formatTestsResultsSubmission: function(submission) {
         const testsPassed = submission.submission.numberOfTestsPassed;
         const totalTests = submission.submission.totalNumberOfTests;
@@ -481,7 +467,9 @@ Example:
         }
       },
 
-
+      /**
+       * Formats test results to show inside the output box
+       */
       _formatTestsResults: function(object) {
         const testsPassed = object.numberOfTestsPassed;
         const totalTests = object.totalNumberOfTests;
@@ -496,7 +484,10 @@ Example:
         }
       },
 
-
+      /**
+       * Called when clicking on a submission and fills the editor
+       * and output with the submission's contents
+       */
       _selectedSubmissionItemChanged: function(newItem, old){
         if(! newItem) return;
         // For some reason I have to reset and set after a timeout,
@@ -569,12 +560,6 @@ Example:
         this._outputMessage = evt.data.output;
         this._errorMessage = evt.data.errorMessage;
         this._formatTestsResults(evt.data);
-        // if (evt.data.numberOfTestsPassed !== undefined
-        //     && evt.data.totalNumberOfTests !== undefined) {
-        //
-        //   this._testsResults = 'Passed '+ evt.data.numberOfTestsPassed + ' / ' + evt.data.totalNumberOfTests + ' tests.';
-        //   this._testsOutput = evt.data.testsOutput;
-        // }
       },
 
       _onProgress: function (evt) {
@@ -587,7 +572,7 @@ Example:
         if(!eventBus) return;
         eventBus.on('asq:question_type', this._onQuestionType.bind(this));
 
-        if (!this.didRequestSkeleton) {
+        if (!this._didRequestSkeleton) {
           console.log("Requesting files")
           eventBus.emit('asq-plugin', {
             type: 'asq-java-q',
@@ -596,7 +581,7 @@ Example:
               questionUid: this.uid,
             }
           });
-          this.didRequestSkeleton = true;
+          this._didRequestSkeleton = true;
         } else {
           console.log("Already Requested")
         }

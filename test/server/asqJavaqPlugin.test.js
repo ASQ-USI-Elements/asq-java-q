@@ -44,7 +44,6 @@ describe("asqJavaqPlugin.js", function(){
     //load html fixtures
     this.simpleHtml = fs.readFileSync(require.resolve('./fixtures/simple.html'), 'utf-8');
     this.noStemHtml = fs.readFileSync(require.resolve('./fixtures/no-stem.html'), 'utf-8');
-    //this.optionsHtml = fs.readFileSync(require.resolve('./fixtures/options.html'), 'utf-8');
 
     this.asqJavaqPlugin = require(modulePath);
   });
@@ -90,11 +89,12 @@ describe("asqJavaqPlugin.js", function(){
       .then(function(result){
         this.create.calledOnce.should.equal(true);
 
-        this.create.calledWith(sinon.match([
+        var expectedResult = [
           {data:{exerciseName:'ex1',files:{main: undefined, files:[], tests:[]}}},
           {data:{exerciseName:"ex1",files:{main: undefined, files:[], tests:[]}}},
           {data:{exerciseName:"ex1",files:{main: undefined, files:[], tests:[]}}}
-        ])).should.equal(true);
+        ]
+        this.create.calledWith(sinon.match(expectedResult)).should.equal(true);
         done();
       }.bind(this))
       .catch(function(err){
@@ -151,7 +151,7 @@ describe("asqJavaqPlugin.js", function(){
 
     it("should find the stem if it exists", function(done){
       var $ = cheerio.load(this.simpleHtml);
-      var el = $(this.tagName)[0];
+      var el = $("#no-uid")[0];
       var elWithHtmlInStem = $(this.tagName)[1];
 
       var result = this.asqJavaq.processEl($, el);
@@ -171,7 +171,7 @@ describe("asqJavaqPlugin.js", function(){
       });
 
       var $ = cheerio.load(this.noStemHtml);
-      var el = $(this.tagName)[0];
+      var el = $("#no-uid")[0];
       var result = this.asqJavaq.processEl($, el);
       result.then(function(result){
         expect(result.data.stem).to.equal("");
@@ -184,7 +184,7 @@ describe("asqJavaqPlugin.js", function(){
 
     it("should return correct data", function(done){
       var $ = cheerio.load(this.simpleHtml);
-      var el = $(this.tagName)[1];
+      var el = $("#uid")[0];
 
       var result = this.asqJavaq.processEl($, el);
       result.then(function(result){
@@ -244,7 +244,7 @@ describe("asqJavaqPlugin.js", function(){
 
     it("default settings should be persisted to the db with no attributes for initial settings", function(done){
       var $ = cheerio.load(this.simpleHtml);
-      var el = $(this.tagName)[0];
+      var el = $("#no-uid")[0];
 
       var result = this.asqJavaq.parseSettings($, el);
       result.then(function(result){
@@ -258,7 +258,7 @@ describe("asqJavaqPlugin.js", function(){
 
     it("default settings should be serialied back to the element with no attributes for initial settings", function(){
       var $ = cheerio.load(this.simpleHtml);
-      var el = $(this.tagName)[0];
+      var el = $("#no-uid")[0];
 
       this.asqJavaq.parseSettings($, el);
       $(el).attr('compile-timeout-ms').should.exist;
@@ -276,7 +276,7 @@ describe("asqJavaqPlugin.js", function(){
 
     it("custom settings should be persisted to the db", function(done){
       var $ = cheerio.load(this.simpleHtml);
-      var el = $(this.tagName)[2];
+      var el = $("#settings")[0];
 
       var result = this.asqJavaq.parseSettings($, el);
       result.then(function(result){
@@ -290,7 +290,7 @@ describe("asqJavaqPlugin.js", function(){
 
     it("custom settings should be serialied back to the element", function(){
       var $ = cheerio.load(this.simpleHtml);
-      var el = $(this.tagName)[2];
+      var el = $("#settings")[0];
 
       this.asqJavaq.parseSettings($, el);
       $(el).attr('compile-timeout-ms').should.exist;

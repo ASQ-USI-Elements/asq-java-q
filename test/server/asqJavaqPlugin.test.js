@@ -9,6 +9,9 @@ var Promise = require('bluebird');
 var modulePath = "../../lib/asqJavaqPlugin";
 var fs = require("fs");
 
+
+var SandboxedModule = require('sandboxed-module');
+
 describe("asqJavaqPlugin.js", function(){
 
   before(function(){
@@ -45,7 +48,18 @@ describe("asqJavaqPlugin.js", function(){
     this.simpleHtml = fs.readFileSync(require.resolve('./fixtures/simple.html'), 'utf-8');
     this.noStemHtml = fs.readFileSync(require.resolve('./fixtures/no-stem.html'), 'utf-8');
 
-    this.asqJavaqPlugin = require(modulePath);
+    // this.asqJavaqPlugin = require(modulePath);
+    this.asqJavaqPlugin = SandboxedModule.require(modulePath, {
+      requires: {
+        "lodash" : require('lodash'),
+        "cheerio" : require('cheerio'),
+        "mongoose" : require('mongoose'),
+        "redis" : {
+          RedisClient: sinon.stub(),
+          createClient: function(){return {}}
+        },
+      }
+    });
   });
 
   describe("parseHtml", function(){

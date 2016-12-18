@@ -56,7 +56,7 @@ describe("asqJavaqPlugin.js", function(){
         "mongoose" : require('mongoose'),
         "redis" : {
           RedisClient: sinon.stub(),
-          createClient: function(){return {}}
+          createClient: sinon.stub(),
         },
       }
     });

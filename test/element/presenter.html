@@ -146,7 +146,11 @@
                  'files': [{name: 'Main.java', data: 'void main(){}'}],
                  'compile': true,
                  'error' : 'Error message',
-                 'output' : 'Run output'}}}];
+                 'output' : 'Run output',
+                 'numberOfTestsPassed' : '3',
+                 'totalNumberOfTests' : '4',
+                 'testsOutput' : 'expected ... got ...'
+               }}}];
           this.presenterEl._selectedSubmissionItemChanged(this.presenterEl._submissions[0]);
 
           flush(() => {

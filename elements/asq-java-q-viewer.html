@@ -2,17 +2,24 @@
 <link rel="import" href="../../asq-base/asq-base.html">
 <link rel="import" href="../../iron-list/iron-list.html">
 <link rel="import" href="../../iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../paper-toolbar/paper-toolbar.html">
+<link rel="import" href="../../paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../ace-element/ace-element.html">
 <link rel="import" href="../../iron-a11y-keys-behavior/iron-a11y-keys-behavior.html">
+<link rel="import" href="../../iron-icons/av-icons.html">
+<link rel="import" href="../../iron-ajax/iron-ajax.html">
+<link rel="import" href="../../iron-pages/iron-pages.html">
+<link rel="import" href="../../paper-tabs/paper-tabs.html">
 
 <!--
 `asq-java-q` is a Java question type.
 
 Example:
-
-    <asq-java-q tabsize="2">
-      <asq-stem><h4>Implement a for loop in Java</h4></asq-stem>
-    </asq-java-q>
+  <asq-java-q tabsize="2" compile-timeout-ms="2000" execution-timeout-ms="1" exercise-name="exercise3">
+    <asq-stem>
+     Exercise 3
+    </asq-stem>
+  </asq-java-q>
 
 @element asq-java-q
 @demo demo/index.html
@@ -22,30 +29,125 @@ Example:
 -->
 <dom-module id="asq-java-q-viewer">
   <style>
-    :host[disabled]{
-      opacity:0.65;
-    }
-    :host{
-      @apply(--layout-vertical);
-      @apply(--layout-flex);
-      position: relative;
-      min-width:100px;
-      min-height: 300px;
-    }
-    #aceContainer{
-      @apply(--layout-flex);
-      position:relative;
-    }
+  :host{
+    @apply(--layout-vertical);
+    @apply(--layout-flex);
+    min-width:100px;
+    min-height: 300px;
+    --paper-toolbar-background: #CFD8DC;
+    --paper-toolbar-color: #000;
+  }
+
+  #statusMsg{
+     padding:0 0.4em;
+     @apply(--layout-flex);
+  }
+
+  #errorMsg{
+    @apply(--asq-java-q-error-message);
+    color: red;
+    font-family: monospace;
+  }
+
+  #le-content{
+   @apply(--layout-horizontal);
+   @apply(--layout-flex);
+   @apply(--asq-java-q-content);
+  }
+
+  #main-container{
+    @apply(--layout-flex);
+    @apply(--layout-vertical);
+  }
+
+  #aceContainer{
+    @apply(--layout-flex-2);
+    position:relative;
+    @apply(--asq-java-q-aceContainer);
+  }
+
+  #output{
+    @apply(--asq-java-q-output);
+    @apply(--layout-flex);
+    padding: 20px;
+    overflow: scroll;
+    font-size: 0.5em;
+    width: 840px;
+  }
+
+  #outputMsg{
+  }
+
+  pre {
+    padding: 0;
+    margin: 0;
+    font-family: monospace;
+  }
+
+  .question-title {
+    font-size: 1.5em;
+    padding: 20px;
+  }
+
+  paper-tabs, paper-toolbar {
+    background-color: var(--paper-grey-300);
+    color: black;
+  }
+
+  paper-tabs {
+    --paper-tabs-selection-bar-color : var(--paper-blue-300);
+    height: 40px;
+  }
+  paper-tab {
+    --paper-tab-ink: var(--paper-grey-500);
+  }
+
   </style>
+
   <template>
-    <div id="leContent"><content select="asq-stem"></content></div>
-    <div id="aceContainer" flex="">
-      <ace-element id="editor" theme="{{theme}}" mode="{{mode}}" readonly="{{disabled}}" wrap="{{wrap}}" font-size="{{fontSize}}" tab-size="{{tabSize}}">[[value]]</ace-element>
+    <div class="question-title">
+      <content select="asq-stem"></content>
     </div>
+
+    <div id="le-content">
+      <div id="main-container">
+
+        <paper-toolbar>
+          <paper-icon-button id="executeBtn" icon="av:play-arrow" on-tap="_onExecuteBtnTap" title="Run"></paper-icon-button>
+          <span id="statusMsg">{{_statusMessage}}</span>
+          <paper-icon-button id="resetBtn" icon="refresh" on-tap="_onResetBtnTap" title="Reset to skeleton"></paper-icon-button>
+        </paper-toolbar>
+
+        <paper-tabs selected="{{_selectedTab}}" scrollable>
+          <template is="dom-repeat" items="{{fileData.files}}" as="file">
+            <paper-tab>{{file.name}}</paper-tab>
+          </template>
+        </paper-tabs>
+
+        <div id="aceContainer" flex="">
+          <iron-pages selected="{{_selectedTab}}">
+            <template is="dom-repeat" items="{{fileData.files}}" as="file">
+              <ace-element id="{{_computeFileName(file.name)}}" theme="{{theme}}" mode="java" readonly="{{disabled}}" wrap="{{wrap}}" font-size="{{fontSize}}" tab-size="{{tabSize}}">{{file.data}}</ace-element>
+            </template>
+          </iron-pages>
+        </div>
+        <div id="output">
+          <div id="testsResults"><pre>{{_testsResults}}</pre></div>
+          <div id="testsOutput"><pre>{{_testsOutput}}</pre></div>
+          <div id="errorMsg"><pre>{{_errorMessage}}</pre></div>
+          <div id="outputMsg"><pre>{{_outputMessage}}</pre></div>
+        </div>
+      </div>
+    </div>
+
   </template>
   <script>
     Polymer({
       is: 'asq-java-q-viewer',
+
+      behaviors: [
+        ASQ.asqQuestionElementBehavior
+      ],
 
       properties: {
         /**
@@ -58,15 +160,17 @@ Example:
           notify: true,
           reflectToAttribute: true,
         },
+
         /**
          * The fontSize property of the ace-element.
          */
         fontSize: {
           type: String,
-          value: "12px",
+          value: "14px",
           notify: true,
           reflectToAttribute: true
         },
+
         /**
          * The mode property of the ace-element.
          */
@@ -76,6 +180,7 @@ Example:
           reflectToAttribute: true,
           notify: true
         },
+
         /**
          * The tabSize property of the ace-element.
          */
@@ -85,6 +190,7 @@ Example:
           notify: true,
           reflectToAttribute: true,
         },
+
         /**
          * The theme property of the ace-element.
          */
@@ -94,6 +200,7 @@ Example:
           notify: true,
           reflectToAttribute: true,
         },
+
         /**
          * The value property of the ace-element.
          */
@@ -102,7 +209,6 @@ Example:
           value: '',
           notify: true,
           reflectToAttribute: true,
-          observer: '_valueChanged'
         },
         /**
          * The wrap property of the ace-element.
@@ -113,88 +219,191 @@ Example:
           notify: true,
           reflectToAttribute: true,
         },
+
+        _selectedTab:{
+          type: Number,
+          notify: true,
+          value: 0,
+          reflectToAttribute: true
+        },
+
         /**
          * Event bus to communicate with ASQ
          */
         eventBus: {
           type: Object,
+          notify: true,
           observer: "_eventBusChanged",
-          notify: true
+        },
+
+        _statusMessage: {
+          type: String,
+          value: 'Press the button to run.',
+          notify: true,
+          reflectToAttribute: true,
+        },
+
+        _errorMessage: {
+          type: String,
+          value: '',
+          notify: true,
+          reflectToAttribute: true,
+        },
+
+        _outputMessage: {
+          type: String,
+          value: '',
+          notify: true,
+          reflectToAttribute: true,
+        },
+
+        /**
+         * Contains the files data
+         * Structure example:
+         * {
+         *    main: 'Main.java',
+         *    files: [
+         *      {
+         *        name: "class1.java",
+         *        data: "void hello(){}"
+         *      },
+         *      {
+         *        name: "Main.java",
+         *        data: "void main(String[] args){}"
+         *      }
+         *    ]
+         * }
+         */
+        fileData: {
+          type: Object,
+          notify: true,
+          value: function() {
+            return {
+            };
+          },
+        },
+
+        _didRequestSkeleton: {
+          type: Boolean,
+          value: false,
+        },
+      },
+
+
+      /**
+       * Removes '.java' from file names -> Used for editor IDs
+       */
+      _computeFileName: function(fileName) {
+        return fileName.split('.')[0];
+      },
+
+      /**
+       * Formats test results to show inside the output box
+       */
+      _formatTestsResults: function(object) {
+        const testsPassed = object.numberOfTestsPassed;
+        const totalTests = object.totalNumberOfTests;
+        if (testsPassed !== undefined
+            && totalTests !== undefined) {
+              this._testsResults = 'Passed '+ testsPassed + ' / ' + totalTests + ' tests.';
+              this._testsOutput = object.testsOutput;
+        } else {
+          this._testsResults = '';
+          this._testsOutput = '';
         }
       },
+
+      /**
+       * Updates fileData object with new changes from the user.
+       */
+      _refreshData: function() {
+        this.fileData.files.forEach(function(file) {
+          let name = file.name.split('.')[0];
+          file.data = this.$$('#'+name).editorValue;
+        }, this);
+      },
+
+      /**
+       * When pressing the run button, send the data to the backend
+       * for compilation.
+       */
+      _onExecuteBtnTap: function (evt) {
+        this._refreshData();
+        this._statusMessage = "Running";
+
+        this.eventBus.emit('asq-plugin', {
+          type: 'asq-java-q',
+          data: {
+            questionUid: this.uid,
+            type: 'run',
+            timestamp: new Date(),
+            submission: this.fileData
+          }
+        });
+      },
+
+      _onResetBtnTap: function(evt) {
+        this.eventBus.emit('asq-plugin', {
+          type: 'asq-java-q',
+          data: {
+            type: 'getFiles',
+            questionUid: this.uid,
+          }
+        });
+      },
+
       /**
        * The `submit` method returns an object that respresents the submission of this question. The object has the following structure:
            {
               questionUid: this.uid,
               timestamp: new Date(),
-              submission: []
+              submission: this.fileData
            }
        * Only enabled when the `role` of the element is <b>viewer</b>.
        *
        * @method submit
        */
-      // submit: function () {
-      //   var submission = this.$.editor.editor.session.getValue();
-      //   return {
-      //     submission: submission
-      //   };
-      // },
-      attached: function(){
-        //delay to make sure ace-editors are initialized
-        setTimeout(function(){
-          this.$.editor.addEventListener('editor-input', this._editorValueChanged.bind(this))
-          this.$.editor.editor.resize();
-        }.bind(this), 1)
-      },
-      _valueChanged: function(newVal){
-        if(this.value && this.$.editor.editorValue != this.value){
-          this.$.editor.editorValue = this.value;
-          this.$.editor.editor.clearSelection(1);
-        }
-      },
-      _editorValueChanged: function(evt){
-        this.value = evt.target.editorValue;
-      },
-      /**
-       * The `submit` method returns an object that respresents the submission of this question. The object has the following structure:
-           {
-              questionUid: this.uid,
-              timestamp: new Date(),
-              submission: this.value
-           }
-       * Only enabled when the `role` of the element is <b>viewer</b>.
-       *
-       * @method submit
-       */
-      submit: function () {
-        if (!this.value) {
-          this.value = '';
-        }
-        submission = this.value;
+      submit: function (evt) {
+        this._statusMessage = "Running";
+        this._refreshData();
+
+        let submission = this.value;
         return {
           questionUid: this.uid,
           timestamp: new Date(),
-          submission: submission
+          submission: this.fileData,
         };
       },
-      // ready: function () {
-      //   if (!this.value) {
-      //     var code = Polymer.dom(this).querySelector('code');
-      //     if (code) {
-      //       //this.value = code.textContent;
-      //       //console.log(code.textContent)
-      //     }
-      //   }
-      // }
+
       _onQuestionType: function (evt) {
+        console.log("Event received", evt.type);
         if (!evt || !evt.questionType)
           return;
-        if (evt.questionType == 'asq-code-q') {
+        if (evt.questionType == 'asq-java-q') {
           if (evt.type == 'restoreViewer') {
             this._onRestoreViewer(evt);
+          } else if (evt.type == 'output') {
+            this._onReceiveResult(evt); // Show compilation and run results
+          } else if (evt.type == 'getFiles') {
+            this._onReceiveFiles(evt); // Show compilation and run results
           }
         }
       },
+
+      /**
+       * Called on receiving skeleton files -> Updates the editor
+       */
+      _onReceiveFiles: function(evt) {
+        console.log("Received files:", evt);
+        if (evt.questionUid != this.uid)
+          return;
+
+        this.set('fileData', {}); // reset
+        setTimeout(function () {
+          this.set('fileData',  evt.data); // set new data
+        }.bind(this), 0);
+      },
+
       _onRestoreViewer: function (evt) {
         evt.questions.forEach(function (q) {
           if (q.uid != this.uid)
@@ -202,10 +411,50 @@ Example:
          this.value = q.submission;
         }.bind(this));
       },
+
+      /**
+        Response structure:
+        {
+          clientId: String,
+          passed: Boolean,
+          output: String,
+          errorMessage: String,
+          timeOut: Boolean
+          totalNumberOfTests: Integer,
+          numberOfTestsPassed: Integer,
+          testsOutput: String      // output of all failed tests
+        }
+       */
+      _onReceiveResult: function(evt) {
+        console.log('Receving output:', evt);
+        // Only accept when it's the correct slide
+        if (evt.data.questionUid != this.uid)
+          return;
+        this._statusMessage = evt.data.passed ? 'Build successful' : 'Build failed';
+        this._outputMessage = evt.data.output;
+        this._errorMessage = evt.data.errorMessage;
+        this._formatTestsResults(evt.data);
+      },
+
       _eventBusChanged: function (eventBus, old) {
         if(!eventBus) return;
         eventBus.on('asq:question_type', this._onQuestionType.bind(this));
-      }
+
+        if (!this._didRequestSkeleton) {
+          console.log("Requesting files")
+          eventBus.emit('asq-plugin', {
+            type: 'asq-java-q',
+            data: {
+              type: 'getFiles',
+              questionUid: this.uid,
+            }
+          });
+          this._didRequestSkeleton = true;
+        } else {
+          console.log("Already requested files");
+        }
+      },
+
     });
   </script>
 </dom-module>

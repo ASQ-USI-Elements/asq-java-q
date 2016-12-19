@@ -22,12 +22,19 @@
   "bugs": {
     "url": "https://github.com/ASQ-USI-Elements/asq-java-q/issues"
   },
+  "scripts": {
+    "test:server": "mocha test/server"
+  },
   "dependencies": {
     "asq-plugin": "ASQ-USI/asq-plugin",
     "bluebird": "^2.8.2",
     "cheerio": "^0.18.0",
+    "json-socket": "*",
     "lodash": "^3.7.0",
-    "bson-objectid": "^1.1.1"
+    "mongoose": "^4.7.1",
+    "net": "^1.0.2",
+    "redis": "^2.6.3",
+    "sandboxed-module": "^2.0.3"
   },
   "license": "MIT",
   "devDependencies": {

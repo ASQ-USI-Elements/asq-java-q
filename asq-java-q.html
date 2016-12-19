@@ -1,5 +1,6 @@
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../asq-base/asq-base.html">
+<link rel="import" href="../iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="elements/asq-java-q-viewer.html">
 <link rel="import" href="elements/asq-java-q-presenter.html">
 
@@ -8,8 +9,10 @@
 
 Example:
 
-    <asq-java-q tabsize="2">
-      <asq-stem><h4>Implement a for loop in Java</h4></asq-stem>
+    <asq-java-q exercise-name="exercise3" tabsize="2" compile-timeout-ms="2000" execution-timeout-ms="1" >
+      <asq-stem>
+       Exercise 3
+      </asq-stem>
     </asq-java-q>
 
 @element asq-java-q
@@ -26,7 +29,9 @@ Example:
       min-height: 200px;
     }
   </style>
+
   <template>
+
     <template is="dom-if" if="{{hasRole(role, roles.VIEWER)}}" restamp="true">
       <asq-java-q-viewer
         uid="[[uid]]"
@@ -68,11 +73,6 @@ Example:
       ],
 
       properties: {
-        _answers: {
-          type: Array,
-          notify: true,
-          value: function() { return []; }
-        },
         /**
          * Set to true to style the element as disabled.
          * Binded to `readonly` of ace-editor.
@@ -88,7 +88,7 @@ Example:
          */
         fontSize: {
           type: String,
-          value: "12px",
+          value: "14px",
           notify: true,
           reflectToAttribute: true
         },
@@ -138,20 +138,19 @@ Example:
           notify: true,
           reflectToAttribute: true,
         },
+
         _selectedSubmissionItem: {
           observer: '_selectedSubmissionItemChanged'
         },
-        _selectedTab:{
-          notify: true
-        },
+
         /**
          * Event bus to communicate with ASQ
          */
         eventBus: {
           type: Object,
-          observer: "_eventBusChanged",
           notify: true
-        }
+        },
+
       },
 
       /**
@@ -159,19 +158,13 @@ Example:
        */
       api: undefined,
 
-
       created: function () {
         document.addEventListener('asq-ready', function (evt) {
           this.eventBus = evt.detail.asqEventBus
         }.bind(this));
 
         this.listen(this, 'role-changed', '_onRoleChanged');
-        this.listen(this, 'asq-option-ready', '_onOptionReady');
         this.listen(this, 'asq-initialized', '_onInitialized');
-      },
-
-      _onOptionReady: function() {
-        this._propagateRole(this.role);
       },
 
       attached: function() {
@@ -193,61 +186,29 @@ Example:
         this.api = this.$$(selector);
       },
 
-
-      /**
-       * Porxy of `toggle` in asq-multi-choice-q-viewer.
-       *
-       * Toggle the given value. By setting the `flag` you can make
-       * sure the give value is to be checked or not. If the `flag` is
-       * not specified, it behaves the same as `select` method.
-       */
-      toggle: function(value, flag) {
-        if ( ! this.api || ! this.api.toggle ) return;
-        this.api.toggle(value, flag);
-      },
-
-      /**
-       * Porxy of `toggle` in asq-multi-choice-q-viewer.
-       *
-       * Toggle the given value.
-       *
-       * Note, it will always set the item specified by `value` into
-       * opposite state. That is either from `checked` to not checked or
-       * from not checked to `checked`.
-       *
-       */
-      select: function(value) {
-        if ( ! this.api || ! this.api.select ) return;
-        this.api.select(value);
-      },
-
-      /**
-       * Clear all selections.
-       */
-      clear: function() {
-        if ( ! this.api || ! this.api.clear ) return;
-        this.api.clear();
-      },
-
-
-
-      /**
-       * Collect answers from inner `asq-option`s and orgnize them
-       * into an object.
-       *
-
-          {
-            uid: this.uid,
-            timestamp: new Date(),
-            options: options
+      ready: function () {
+        if (!this.value) {
+          var code = Polymer.dom(this).querySelector('code');
+          if (code) {
+            this.value = code.textContent;
           }
+        }
+      },
+
+      /**
+       * Calls submit for the viewer that sends the following:
+         {
+            questionUid: this.uid,
+            timestamp: new Date(),
+            submission: this.fileData
+         }
 
        */
       submit: function() {
         if (this.role == this.roles.VIEWER) {
           var el = this.$$('asq-java-q-viewer');
           if (!el) {
-            throw new Error('submit(): expected asq-css-select-q-viewer element to exist');
+            throw new Error('submit(): expected asq-java-q-viewer element to exist');
           }
           return el.submit();
         }
@@ -255,8 +216,7 @@ Example:
 
       _valueChanged:function(newVal, oldVal){
         this.fire('questioninput', newVal)
-      }
-
+      },
     });
   </script>
 </dom-module>

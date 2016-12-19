@@ -1,0 +1,125 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="asq" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+  <title>asq-java-q</title>
+
+  <script src="../../../webcomponentsjs/webcomponents.min.js"></script>
+  <script src="../../../web-component-tester/browser.js"></script>
+
+  <!-- Step 1: import the element to test -->
+  <link rel="import" href="../../asq-java-q.html">
+  <link rel="import" href="../../../asq-base/asq-base.html">
+</head>
+<body>
+
+  <!-- You use the document as a place to set up your fixtures. -->
+  <asq-java-q>
+    <asq-stem><h3>An asq-java-q question where you can compile Java code.</h3></asq-stem>
+  </asq-java-q>
+
+  <test-fixture id="viewerElementFixture">
+    <template>
+      <asq-java-q-viewer id="viewer" uid="test-uid">
+      </asq-java-q-viewer>
+    </template>
+  </test-fixture>
+
+  <script>
+    suite('<asq-java-q-viewer>', function() {
+      setup(function() {
+        this.viewerEl = fixture('viewerElementFixture');
+        this.viewerEl.eventBus = {
+          emit: sinon.stub(),
+          on: sinon.stub()
+        }
+      });
+
+      suite('Execute Button', function() {
+
+        setup(function() {
+          sinon.stub(this.viewerEl, "_onExecuteBtnTap");
+        });
+
+        teardown(function() {
+          this.viewerEl._onExecuteBtnTap.restore();
+        });
+
+        test('test execute button', function() {
+          this.viewerEl.$.executeBtn.click();
+          assert.equal(this.viewerEl._onExecuteBtnTap.calledOnce, true);
+        });
+      });
+
+      suite('_onExecuteBtnTap()', function() {
+
+        setup(function() {
+          this.viewerEl.eventBus = {
+            emit: sinon.stub(),
+            on: sinon.stub()
+          };
+          this.viewerEl.fileData = {'main' : 'Main.java', 'files': []};
+        });
+
+        test('test execute button', function() {
+          this.viewerEl.value = "test-value";
+          this.viewerEl._onExecuteBtnTap();
+          assert.equal(this.viewerEl.eventBus.emit.calledOnce, true);
+          const firstCallArgs = this.viewerEl.eventBus.emit.args[0];
+          assert.equal(firstCallArgs[0], 'asq-plugin')
+          const evt = firstCallArgs[1];
+          assert.equal(evt.type, 'asq-java-q');
+          assert.equal(evt.data.questionUid, this.viewerEl.uid);
+          assert.isBelow(new Date() - evt.data.timestamp, 1000);
+          assert.equal(evt.data.submission, this.viewerEl.fileData);
+        });
+      });
+
+      suite('_onReceiveResult()', function() {
+
+        setup(function() {
+
+        });
+
+        test('test successful build', function() {
+          this.viewerEl.value = "test-value";
+          const evt = {
+            'data': {
+              'passed' : true,
+              'output' : 'Hello World',
+              'errorMessage' : 'Error',
+              'questionUid' : 'test-uid',
+          }};
+          this.viewerEl._onReceiveResult(evt);
+          assert.equal(this.viewerEl._statusMessage, 'Build successful');
+          assert.equal(this.viewerEl._outputMessage, evt.data.output);
+          assert.equal(this.viewerEl._errorMessage, evt.data.errorMessage);
+          assert.equal(this.viewerEl.$.statusMsg.textContent, 'Build successful');
+          assert.equal(this.viewerEl.$.errorMsg.firstChild.textContent, evt.data.errorMessage);
+          assert.equal(this.viewerEl.$.outputMsg.firstChild.textContent, evt.data.output);
+        });
+
+        test('test failed build', function() {
+          this.viewerEl.value = "test-value";
+          const evt = {
+            'data': {
+              'passed' : false,
+              'output' : 'Hello World',
+              'errorMessage' : 'Error',
+              'questionUid' : 'test-uid',
+          }};
+          this.viewerEl._onReceiveResult(evt);
+          assert.equal(this.viewerEl._statusMessage, 'Build failed');
+          assert.equal(this.viewerEl._outputMessage, evt.data.output);
+          assert.equal(this.viewerEl._errorMessage, evt.data.errorMessage);
+          assert.equal(this.viewerEl.$.statusMsg.textContent, 'Build failed');
+          assert.equal(this.viewerEl.$.errorMsg.firstChild.textContent, evt.data.errorMessage);
+          assert.equal(this.viewerEl.$.outputMsg.firstChild.textContent, evt.data.output);
+        });
+      });
+    });
+  </script>
+
+</body>
+</html>
